@@ -1,0 +1,7 @@
+name = Find an Expert Profile
+description = Provides Find an Expert profile information obtained via SparQL.
+package = University of Melbourne
+core = 7.x
+
+dependencies[] = uom_fae_api
+dependencies[] = user

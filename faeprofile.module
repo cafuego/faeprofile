@@ -1,0 +1,19 @@
+<?php
+/**
+ * Overview, Affiliation, Publications, Research, Awards, Linkages, Supervision.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function faeprofile_menu() {
+  $items['user/%user/overview'] = array(
+    'title' => t('Find an Expert'),
+    'page callback' => 'faeprofile_page_overview',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'faeprofile.pages.inc',
+  );
+  return $items;
+}
