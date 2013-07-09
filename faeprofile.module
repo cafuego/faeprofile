@@ -4,16 +4,215 @@
  */
 
 /**
+ * Helper that is used to create menu callbacks and blocks for the various elements.
+ */
+function faeprofile_elements() {
+  return array(
+    'overview' => t('Overview'),
+    'affiliation' => t('Affiliation'),
+    'publications' => t('Publications'),
+    'research' => t('Research'),
+    'awards' => t('Awards'),
+    'linkages' => t('Linkages'),
+    'supervision' => t('Supervision'),
+    'contact' => t('Contact'),
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function faeprofile_menu() {
-  $items['user/%user/overview'] = array(
-    'title' => t('Find an Expert'),
-    'page callback' => 'faeprofile_page_overview',
-    'page arguments' => array(1),
-    'access callback' => TRUE,
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'faeprofile.pages.inc',
-  );
+  $items = array();
+
+  foreach (faeprofile_elements() as $element => $label) {
+    $function = 'faeprofile_page_' . $element;
+    $items['user/%user/' . $element] = array(
+      'title' => t('@element', array('@element' => $label)),
+      'page callback' => $function,
+      'page arguments' => array(1),
+      'access callback' => TRUE,
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'file' => 'faeprofile.pages.inc',
+    );
+  }
   return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function faeprofile_block_info() {
+  $blocks = array();
+  foreach (faeprofile_elements() as $element => $label) {
+    $blocks[$element]['info'] = t('Fae Profile: @element', array('@element' => $label));
+  }
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function faeprofile_block_view($delta) {
+  // Only show on a user page.
+  if ((arg(0) != 'user') && (count(arg()) < 2)) {
+    return array();
+  }
+
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  $function = 'faeprofile_page_' . $delta;
+
+  if (!function_exists($function)) {
+    return array();
+  }
+
+  $account = menu_get_object('user');
+  if (empty($account->field_fae_resource['und'][0]['url'])) {
+    return array();
+  }
+
+  $block = array(
+    'subject' => t('FaE Profile @delta', array('@delta' => ucwords($delta))),
+    'content' => call_user_func($function, $account)
+  );
+  return $block;
+}
+
+/**
+ * Implements hook_theme.
+ */
+function faeprofile_theme() {
+  return array(
+    'faeprofile_overview' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-overview',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_contact' => array(
+      'variables' => array(
+        'data' => array(
+          'email' => '',
+          'phone' => '',
+          'webpage' => '',
+          'room' => '',
+          'building' => 'University of Melbourne',
+          'supervisor' => 'N',
+        ),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-contact',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_affiliation' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-affiliation',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_publications' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-publications',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_research' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-research',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_awards' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-awards',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_linkages' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-linkages',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_supervision' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-supervision',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
+    'faeprofile_image' => array(
+      'variables' => array(
+        'uri' => NULL,
+        'style' => 'medium'
+      ),
+    ),
+    'faeprofile_supervisor' => array(
+      'variables' => array(
+        'available' => 'N',
+      ),
+    ),
+  );
+}
+
+/**
+ * Create an image from a FaE resource URI.
+ */
+function theme_faeprofile_image($vars) {
+  if (empty($vars['uri'])) {
+    return NULL;
+  }
+  $ret = preg_match('/^(http:\/\/[A-Za-z0-9\.-]+)\/[a-z]+\/([a-z]+)([0-9]+)$/', $vars['uri'], $matches);
+  if (!$ret) {
+    return NULL;
+  }
+  $image = $matches[1] . '/pictures/' . $matches[3] . 'picture.JPG';
+
+  return theme('imagecache_external', array('path' => $image, 'style_name' => $vars['style']));
+}
+
+/**
+ * Theme a supervision status.
+ */
+function theme_faeprofile_supervisor($vars) {
+  $available = $vars['available'];
+  return ($vars['available'] == 'Y') ? t('<span class="supervisor-available">Available</span>') : t('<span class="supervisor-unavailable">Not available</span>');
+}
+
+/**
+ * Preprocess functions for faeprofile overview.
+ */
+function template_preprocess_faeprofile_overview(&$vars) {
+  dpm($vars, __FUNCTION__ . ': $vars');
+}
+
+/**
+ * Preprocess functions for faeprofile contact.
+ */
+function template_preprocess_faeprofile_contact(&$vars) {
+  $uri = $vars['uri'];
+  $contact = $vars['data'];
+  unset($vars['data']);
+
+  $vars['email'] = l($contact['email'], 'mailto:' . $contact['email']);
+  $vars['phone'] = $contact['phone'];
+  $vars['webpage'] = l($contact['webpage'], $contact['webpage']);
+  $vars['room'] = $contact['room'];
+  $vars['building'] = $contact['building'];
+  $vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));
+
+  $vars['image'] = theme('faeprofile_image', array('uri' => $uri));
 }

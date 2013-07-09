@@ -3,5 +3,6 @@ description = Provides Find an Expert profile information obtained via SparQL.
 package = University of Melbourne
 core = 7.x
 
+dependencies[] = imagecache_external
 dependencies[] = uom_fae_api
 dependencies[] = user
