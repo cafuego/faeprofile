@@ -20,10 +20,27 @@ function faeprofile_elements() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function faeprofile_permission() {
+  $permissions = array();
+
+  foreach (faeprofile_elements() as $element => $label) {
+    $permission['view faeprofile ' . $element] = array(
+      'title' => t('View FaE @label', array('@label' => $label)),
+      'description' => t('View Find an Export @label information on user profiles', array('@label' => $label)),
+    );
+  }
+
+  return $permissions;
+}
+
+/**
  * Implements hook_menu().
  */
 function faeprofile_menu() {
   $items = array();
+  $weight = 0;
 
   foreach (faeprofile_elements() as $element => $label) {
     $function = 'faeprofile_page_' . $element;
@@ -31,9 +48,11 @@ function faeprofile_menu() {
       'title' => t('@element', array('@element' => $label)),
       'page callback' => $function,
       'page arguments' => array(1),
-      'access callback' => TRUE,
-      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'access callback' => 'user_access',
+      'access arguments' => array('view faeprofile ' . $element),
+      'type' => MENU_LOCAL_TASK,
       'file' => 'faeprofile.pages.inc',
+      'weight' => ++$weight,
     );
   }
   return $items;
@@ -79,7 +98,30 @@ function faeprofile_block_view($delta) {
 }
 
 /**
- * Implements hook_theme.
+ * Implements hook_user_view().
+ */
+function faeprofile_user_view($account, $view_mode, $langcode) {
+  if (empty($account->field_fae_resource['und'][0]['url'])) {
+    return;
+  }
+
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+
+  foreach (faeprofile_elements() as $element => $label) {
+    $function = 'faeprofile_page_' . $element;
+    if (function_exists($function)) {
+      $account->content['summary']['faeprofile_' . $element] = array(
+        '#type' => 'user_profile_item',
+        '#title' => t('@label' , array('@label' => $label)),
+        '#markup' => call_user_func($function, $account),
+        '#attributes' => array('class' => array('faeprofile-' . $element)),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
  */
 function faeprofile_theme() {
   return array(
@@ -160,6 +202,11 @@ function faeprofile_theme() {
         'style' => 'medium'
       ),
     ),
+    'faeprofile_publication' => array(
+      'variables' => array(
+        'publication' => NULL,
+      ),
+    ),
     'faeprofile_supervisor' => array(
       'variables' => array(
         'available' => 'N',
@@ -193,9 +240,45 @@ function theme_faeprofile_supervisor($vars) {
 }
 
 /**
+ * Theme a publication.
+ */
+function theme_faeprofile_publication($vars) {
+  return t('!title', array('!title' => l($vars['publication']['pubtitle'], $vars['publication']['publication'])));
+}
+
+/**
  * Preprocess functions for faeprofile overview.
  */
 function template_preprocess_faeprofile_overview(&$vars) {
+  $overview = $vars['data'];
+  $vars['overview'] = $overview['overviewText1'];
+}
+
+/**
+ * Preprocess functions for faeprofile publications.
+ */
+function template_preprocess_faeprofile_publications(&$vars) {
+  $uri = $vars['uri'];
+  $publications = $vars['data'];
+  unset($vars['data']);
+
+  foreach ($publications as $publication) {
+    dpm($publication, __FUNCTION__ . ': $publication');
+    $datestamp = strtotime($publication['dateValue']);
+    $vars['publications'][] = array(
+      'title' => $publication['pubtitle'],
+      'link' => $publication['publication'],
+      'date' => date('Y-m-d', $datestamp),
+      'year' => date('Y', $datestamp),
+    );
+  }
+
+  // Do some grouping of publications by date.
+  foreach ($vars['publications'] as $publication) {
+    $vars['by_year'][$publication['year']][] = $publication;
+  }
+  krsort($vars['by_year']);
+
   dpm($vars, __FUNCTION__ . ': $vars');
 }
 

@@ -4,4 +4,4 @@
  */
 ?>
 
-<?php print $overview; ?>
+Publications.
