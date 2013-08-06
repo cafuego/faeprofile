@@ -118,6 +118,8 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
       );
     }
   }
+
+  dpm($account);
 }
 
 /**
@@ -263,7 +265,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
   unset($vars['data']);
 
   foreach ($publications as $publication) {
-    dpm($publication, __FUNCTION__ . ': $publication');
+    // dpm($publication, __FUNCTION__ . ': $publication');
     $datestamp = strtotime($publication['dateValue']);
     $vars['publications'][] = array(
       'title' => $publication['pubtitle'],
@@ -279,7 +281,16 @@ function template_preprocess_faeprofile_publications(&$vars) {
   }
   krsort($vars['by_year']);
 
-  dpm($vars, __FUNCTION__ . ': $vars');
+  // dpm($vars, __FUNCTION__ . ': $vars');
+}
+
+/**
+ * Preprocess functions for faeprofile supervision.
+ */
+function template_preprocess_faeprofile_supervision(&$vars) {
+  $supervision = $vars['data'];
+  $vars['available'] = theme_faeprofile_supervisor(array('available' => $supervision['supervisor']));
+  $vars['overview'] = $supervision['supervisorText1'];
 }
 
 /**
