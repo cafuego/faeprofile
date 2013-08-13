@@ -1,7 +1,19 @@
 <?php
 /**
- * Overview, Affiliation, Publications, Research, Awards, Linkages, Supervision.
+ * Profile, Overview, Affiliation, Publications, Research, Awards, Linkages, Supervision.
  */
+
+/**
+ * Profile tab for extra non-FaE information.
+ */
+function faeprofile_page_information($account) {
+  $profile = field_get_items('user', $account, 'field_profile_profile');
+  if (empty($profile)) {
+    return drupal_not_found();
+  }
+
+  return theme('faeprofile_information', array('data' => $profile));
+}
 
 /**
  * Overview page callback for Find an Expert profile information.

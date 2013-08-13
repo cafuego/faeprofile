@@ -15,6 +15,7 @@ function faeprofile_elements() {
     'awards' => t('Awards'),
     'linkages' => t('Linkages'),
     'supervision' => t('Supervision'),
+    'information' => t('Information'),
     'contact' => t('Contact'),
   );
 }
@@ -65,8 +66,8 @@ function faeprofile_menu() {
       'title' => t('@element', array('@element' => $label)),
       'page callback' => $function,
       'page arguments' => array(1),
-      'access callback' => 'user_access',
-      'access arguments' => array('view faeprofile ' . $element),
+      'access callback' => 'faeprofile_user_access',
+      'access arguments' => array('view faeprofile ' . $element, 1),
       'type' => MENU_LOCAL_TASK,
       'weight' => ++$weight,
       'file' => 'faeprofile.pages.inc',
@@ -76,14 +77,33 @@ function faeprofile_menu() {
 }
 
 /**
+ * Access callback for faeprofile tabs.
+ *
+ * Return TRUE only if a user has the correct permission and the resource
+ * is present.
+ */
+function faeprofile_user_access($permission, $account) {
+  $access = user_access($permission);
+
+  // Seperate check for the extra profile field.
+  if ($permission == 'view faeprofile information') {
+    $value = trim(strip_tags($account->field_profile_profile['und'][0]['value']));
+    $resource = !empty($value);
+  }
+  else {
+    $resource = !empty($account->field_fae_resource['und'][0]['url']);
+  }
+
+  return ($access && $resource);
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function faeprofile_menu_alter(&$items) {
-  dpm($items);
   if (variable_get('faeprofile_main', 0)) {
     $items['user/%user/view']['title'] = t('Overview');
-
-    // $items['user/%user'];
+    $items['user/%user/edit']['weight'] = 10;
   }
 }
 
@@ -169,6 +189,14 @@ function faeprofile_preprocess_user_profile(&$variables) {
  */
 function faeprofile_theme() {
   return array(
+    'faeprofile_information' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-information',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
     'faeprofile_overview' => array(
       'variables' => array(
         'data' => array(),
@@ -288,6 +316,14 @@ function theme_faeprofile_supervisor($vars) {
  */
 function theme_faeprofile_publication($vars) {
   return t('!title', array('!title' => l($vars['publication']['pubtitle'], $vars['publication']['publication'])));
+}
+
+/**
+ * Preprocess functions for faeprofile information.
+ */
+function template_preprocess_faeprofile_information(&$vars) {
+  $information = $vars['data'];
+  $vars['information'] = $information[0]['safe_value'];
 }
 
 /**
