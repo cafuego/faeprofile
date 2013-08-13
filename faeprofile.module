@@ -25,10 +25,15 @@ function faeprofile_elements() {
 function faeprofile_permission() {
   $permissions = array();
 
+  $permissions['administer faeprofile'] = array(
+    'title' => t('Administer FaE Profile'),
+    'description' => t('Choose which FaE Profile tabs are shown on user profile pages.'),
+  );
+
   foreach (faeprofile_elements() as $element => $label) {
-    $permission['view faeprofile ' . $element] = array(
-      'title' => t('View FaE @label', array('@label' => $label)),
-      'description' => t('View Find an Export @label information on user profiles', array('@label' => $label)),
+    $permissions['view faeprofile ' . $element] = array(
+      'title' => t('View FaE @label information', array('@label' => $label)),
+      'description' => t('View Find an Expert @label information on user profiles', array('@label' => $label)),
     );
   }
 
@@ -42,7 +47,19 @@ function faeprofile_menu() {
   $items = array();
   $weight = 0;
 
+  $items['admin/config/people/faeprofile'] = array(
+    'title' => t('FaE Profile'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('faeprofile_settings_form'),
+    'access arguments' => array('administer faeprofile'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'faeprofile.admin.inc',
+  );
+
   foreach (faeprofile_elements() as $element => $label) {
+    if ($element == 'overview' || $element == 'contact') {
+      continue;
+    }
     $function = 'faeprofile_page_' . $element;
     $items['user/%user/' . $element] = array(
       'title' => t('@element', array('@element' => $label)),
@@ -51,11 +68,23 @@ function faeprofile_menu() {
       'access callback' => 'user_access',
       'access arguments' => array('view faeprofile ' . $element),
       'type' => MENU_LOCAL_TASK,
-      'file' => 'faeprofile.pages.inc',
       'weight' => ++$weight,
+      'file' => 'faeprofile.pages.inc',
     );
   }
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function faeprofile_menu_alter(&$items) {
+  dpm($items);
+  if (variable_get('faeprofile_main', 0)) {
+    $items['user/%user/view']['title'] = t('Overview');
+
+    // $items['user/%user'];
+  }
 }
 
 /**
@@ -90,11 +119,10 @@ function faeprofile_block_view($delta) {
     return array();
   }
 
-  $block = array(
+  return array(
     'subject' => t('FaE Profile @delta', array('@delta' => ucwords($delta))),
-    'content' => call_user_func($function, $account)
+    'content' => call_user_func($function, $account),
   );
-  return $block;
 }
 
 /**
@@ -107,19 +135,33 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
 
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
 
-  foreach (faeprofile_elements() as $element => $label) {
-    $function = 'faeprofile_page_' . $element;
-    if (function_exists($function)) {
-      $account->content['summary']['faeprofile_' . $element] = array(
-        '#type' => 'user_profile_item',
-        '#title' => t('@label' , array('@label' => $label)),
-        '#markup' => call_user_func($function, $account),
-        '#attributes' => array('class' => array('faeprofile-' . $element)),
-      );
-    }
+  if (!function_exists('faeprofile_page_overview')) {
+    return;
   }
 
-  dpm($account);
+  $account->content['faeprofile'] = array(
+    '#type' => 'user_profile_item',
+    '#title' => t('@label' , array('@label' => $label)),
+    '#markup' => faeprofile_page_overview($account),
+    '#attributes' => array('class' => array('faeprofile-overview')),
+  );
+}
+
+/**
+ * Implements template_preprocess_user_profile().
+ *
+ * Turn off all but the overview, if required.
+ */
+function faeprofile_preprocess_user_profile(&$variables) {
+  if (!variable_get('faeprofile_main', 0)) {
+    return;
+  }
+
+  foreach (element_children($variables['user_profile']) as $element) {
+    if ($element != 'faeprofile') {
+      unset($variables['user_profile'][$element]);
+    }
+  }
 }
 
 /**
