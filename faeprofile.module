@@ -279,6 +279,11 @@ function faeprofile_theme() {
         'publication' => NULL,
       ),
     ),
+    'faeprofile_grant' => array(
+      'variables' => array(
+        'grant' => NULL,
+      ),
+    ),
     'faeprofile_supervisor' => array(
       'variables' => array(
         'available' => 'N',
@@ -312,10 +317,54 @@ function theme_faeprofile_supervisor($vars) {
 }
 
 /**
+ * Theme an award or grant.
+ */
+function theme_faeprofile_grant($vars) {
+  $output = t('<a href="!link">!title</a> (@scheme) awarded by @organisation', array(
+    '!title' => $vars['grant']['grant'],
+    '!link' => $vars['grant']['link'],
+    '@scheme' => !empty($vars['grant']['scheme']) ? $vars['grant']['scheme'] . '.' : '',
+    '@organisation' => $vars['grant']['organisation']
+  ));
+
+  if (!empty($vars['grant']['start'])) {
+    $output .= t(' <span class="listDateTime">@start-@end</span>', array(
+      '@start' => $vars['grant']['start'],
+      '@end' => $vars['grant']['end'],
+    ));
+  }
+
+  return $output;
+}
+
+/**
  * Theme a publication.
  */
 function theme_faeprofile_publication($vars) {
-  return t('!title', array('!title' => l($vars['publication']['pubtitle'], $vars['publication']['publication'])));
+  $output = t('<a href="!link">!title</a>. %publication @publisher', array(
+    '!title' => $vars['publication']['title'],
+    '!link' => $vars['publication']['link'],
+    '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
+    '@publisher' => $vars['publication']['publisher']));
+
+  if (!empty($vars['publication']['volume'])) {
+    $output .= t(' @volume', array('@volume' => $vars['publication']['volume']));
+  }
+  else if (!empty($vars['publication']['edition'])) {
+    $output .= t(' @edition', array('@edition' => $vars['publication']['edition']));
+  }
+
+  if (!empty($vars['publication']['page_start'])) {
+    $output .= t(':@start', array('@start' => $vars['publication']['page_start']));
+
+    if (!empty($vars['publication']['page_end'])) {
+      $output .= t('-@end', array('@end' => $vars['publication']['page_end']));
+    }
+  }
+
+  $output .= t(' <span class="listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+
+  return $output;
 }
 
 /**
@@ -335,31 +384,104 @@ function template_preprocess_faeprofile_overview(&$vars) {
 }
 
 /**
+ * Preprocess functions for faeprofile affiliation.
+ */
+function template_preprocess_faeprofile_affiliation(&$vars) {
+  $affiliations = $vars['data'];
+  $vars['affiliations'] = array();
+
+  foreach ($affiliations as $affiliation) {
+    $vars['affiliations'][] = array(
+      'organisation' => check_plain($affiliation['orgLabel']),
+      'role' => check_plain($affiliation['roleLabel']),
+    );
+  }
+}
+
+/**
  * Preprocess functions for faeprofile publications.
  */
 function template_preprocess_faeprofile_publications(&$vars) {
   $uri = $vars['uri'];
   $publications = $vars['data'];
-  unset($vars['data']);
+
+  $vars['publications'] = array();
+  $vars['year'] = array();
 
   foreach ($publications as $publication) {
     // dpm($publication, __FUNCTION__ . ': $publication');
     $datestamp = strtotime($publication['dateValue']);
     $vars['publications'][] = array(
-      'title' => $publication['pubtitle'],
-      'link' => $publication['publication'],
-      'date' => date('Y-m-d', $datestamp),
+      'publication' => $publication['publication'],
+      'title' => $publication['title'],
+      'link' => $publication['article'],
+      'publisher' => $publication['publishOrg'],
+      'page_start' => $publication['pageStart'],
+      'page_end' => $publication['pageEnd'],
+      'edition' => $publication['edition'],
+      'volume' => $publication['volume'],
+      'isbn13' => $publication['isbn13'],
+      'date' => date('Y', $datestamp),
       'year' => date('Y', $datestamp),
     );
   }
 
   // Do some grouping of publications by date.
   foreach ($vars['publications'] as $publication) {
-    $vars['by_year'][$publication['year']][] = $publication;
+    $vars['year'][$publication['year']][] = theme('faeprofile_publication', array('publication' => $publication));
   }
-  krsort($vars['by_year']);
+  krsort($vars['year']);
+}
 
-  // dpm($vars, __FUNCTION__ . ': $vars');
+/**
+ * Preprocess functions for faeprofile research.
+ */
+function template_preprocess_faeprofile_research(&$vars) {
+  $uri = $vars['uri'];
+  $research = $vars['data'];
+
+  $vars['research'] = array();
+  $vars['grants'] = array();
+  $vars['schemes'] = array();
+
+  foreach ($research as $grant) {
+    $startstamp = strtotime($grant['dateStart']);
+    $endstamp = strtotime($grant['dateEnd']);
+
+    $vars['research'][] = array(
+      'grant' => $grant['grantLabel'],
+      'link' => $grant['grant'],
+      'scheme' => $grant['grantScheme'],
+      'role' => $grant['roleLabel'],
+      'organisation' => $grant['orgLabel'],
+      'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
+      'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
+    );
+  }
+
+  // Do some grouping of publications by date.
+  foreach ($vars['research'] as $grant) {
+    $vars['grants'][] = $vars['schemes'][$grant['scheme']][] = theme('faeprofile_grant', array('grant' => $grant));
+  }
+  krsort($vars['schemes']);
+}
+
+/**
+ * Preprocess functions for faeprofile awards.
+ */
+function template_preprocess_faeprofile_awards(&$vars) {
+  dpm($vars, __FUNCTION__);
+  $research = $vars['data'];
+  $vars['research'] = t('TODO');
+}
+
+/**
+ * Preprocess functions for faeprofile linkages.
+ */
+function template_preprocess_faeprofile_linkages(&$vars) {
+  dpm($vars, __FUNCTION__);
+  $linkages = $vars['data'];
+  $vars['linkages'] = t('TODO');
 }
 
 /**
