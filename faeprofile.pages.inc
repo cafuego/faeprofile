@@ -8,7 +8,7 @@
  */
 function faeprofile_page_information($account) {
   $profile = field_get_items('user', $account, 'field_profile_profile');
-  if (empty($profile)) {
+  if (!variable_get('faeprofile_information', 0) && empty($profile)) {
     return drupal_not_found();
   }
 
