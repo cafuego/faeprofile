@@ -3,5 +3,6 @@
  * @file
  */
 ?>
-
-<?php print $overview; ?>
+<div class="faeprofile-overview">
+  <?php print $overview; ?>
+</div>

@@ -167,9 +167,6 @@ function faeprofile_block_view($delta) {
  * Implements hook_user_view().
  */
 function faeprofile_user_view($account, $view_mode, $langcode) {
-  if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return;
-  }
 
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
 
@@ -180,7 +177,6 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
   if (user_access('view faeprofile overview')) {
     $account->content['faeprofile_overview'] = array(
       '#type' => 'user_profile_item',
-      '#title' => t('@label' , array('@label' => $label)),
       '#markup' => faeprofile_page_overview($account),
       '#attributes' => array('class' => array('faeprofile-overview')),
       '#weight' => -10,
@@ -190,12 +186,12 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
   if (variable_get('faeprofile_information', 0) && user_access('view faeprofile information')) {
     $account->content['faeprofile_information'] = array(
       '#type' => 'user_profile_item',
-      '#title' => t('@label' , array('@label' => $label)),
       '#markup' => faeprofile_page_information($account),
       '#attributes' => array('class' => array('faeprofile-information')),
       '#weight' => -9,
     );
   }
+
 }
 
 /**
@@ -427,7 +423,7 @@ function theme_faeprofile_affiliation($vars) {
  */
 function theme_faeprofile_publication($vars) {
   $output = t('<a href="!link">!title</a>. %publication @publisher', array(
-    '!title' => $vars['publication']['title'],
+    '!title' => strip_tags($vars['publication']['title']),
     '!link' => $vars['publication']['link'],
     '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
     '@publisher' => $vars['publication']['publisher']));
@@ -465,6 +461,12 @@ function template_preprocess_faeprofile_information(&$vars) {
  */
 function template_preprocess_faeprofile_overview(&$vars) {
   $overview = $vars['data'];
+  $vars['overview'] = '';
+
+  if (empty($overview) || $overview == 'Empty') {
+    return;
+  }
+
   $vars['overview'] = $overview['overviewText1'];
 }
 
@@ -474,6 +476,11 @@ function template_preprocess_faeprofile_overview(&$vars) {
 function template_preprocess_faeprofile_affiliations(&$vars) {
   $affiliations = $vars['data'];
   $vars['affiliations'] = array();
+
+  // Early return with empty vars if there are no items to process.
+  if (empty($affiliations)) {
+    return;
+  }
 
   foreach ($affiliations as $affiliation) {
     $temp = array(
@@ -493,6 +500,11 @@ function template_preprocess_faeprofile_publications(&$vars) {
 
   $vars['publications'] = array();
   $vars['year'] = array();
+
+  // Early return with empty vars if there are no items to process.
+  if (empty($publications)) {
+    return;
+  }
 
   foreach ($publications as $publication) {
     $datestamp = strtotime($publication['dateValue']);
@@ -527,6 +539,11 @@ function template_preprocess_faeprofile_research(&$vars) {
   $vars['schemes'] = array();
   $vars['year'] = array();
 
+  // Early return with empty vars if there are no items to process.
+  if (empty($research)) {
+    return;
+  }
+
   foreach ($research as $grant) {
     $startstamp = strtotime($grant['dateStart']);
     $endstamp = strtotime($grant['dateEnd']);
@@ -559,6 +576,11 @@ function template_preprocess_faeprofile_awards(&$vars) {
   $vars['awards'] = array();
   $vars['year'] = array();
 
+  // Early return with empty vars if there are no items to process.
+  if (empty($awards)) {
+    return;
+  }
+
   foreach ($awards as $award) {
     $timestamp = strtotime($award['dateValue']);
 
@@ -580,6 +602,11 @@ function template_preprocess_faeprofile_awards(&$vars) {
 function template_preprocess_faeprofile_linkages(&$vars) {
   $linkages = $vars['data'];
   $vars['linkages'] = array();
+
+  // Early return with empty vars if there are no items to process.
+  if (empty($linkages)) {
+    return;
+  }
 
   foreach ($linkages as $linkage) {
     $vars['linkages'][] = theme('faeprofile_linkage', array('linkage' => $linkage));
