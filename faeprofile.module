@@ -32,6 +32,13 @@ function faeprofile_elements($enabled_only = FALSE) {
 }
 
 /**
+ * Implements hook_init().
+ */
+function faeprofile_init() {
+  drupal_add_css( drupal_get_path('module', 'faeprofile') . '/css/faeprofile.css');
+}
+
+/**
  * Implements hook_permission().
  */
 function faeprofile_permission() {
@@ -352,7 +359,7 @@ function theme_faeprofile_image($vars) {
  */
 function theme_faeprofile_supervisor($vars) {
   $available = $vars['available'];
-  return ($vars['available'] == 'Y') ? t('<span class="supervisor-available">Available</span>') : t('<span class="supervisor-unavailable">Not available</span>');
+  return ($vars['available'] == 'Y') ? t('<span class="faeprofile-supervisor-available">Available</span>') : t('<span class="faeprofile-supervisor-unavailable">Not available</span>');
 }
 
 /**
@@ -367,7 +374,7 @@ function theme_faeprofile_grant($vars) {
   ));
 
   if (!empty($vars['grant']['start'])) {
-    $output .= t(' <span class="listDateTime">@start-@end</span>', array(
+    $output .= t(' <span class="faeprofile-listDateTime">@start-@end</span>', array(
       '@start' => $vars['grant']['start'],
       '@end' => $vars['grant']['end'],
     ));
@@ -387,7 +394,7 @@ function theme_faeprofile_award($vars) {
   ));
 
   if (!empty($vars['award']['year'])) {
-    $output .= t(' <span class="listDateTime">@year</span>', array(
+    $output .= t(' <span class="faeprofile-listDateTime">@year</span>', array(
       '@year' => $vars['award']['year'],
     ));
   }
@@ -440,7 +447,7 @@ function theme_faeprofile_publication($vars) {
     }
   }
 
-  $output .= t(' <span class="listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+  $output .= t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
 
   return $output;
 }
@@ -596,9 +603,14 @@ function template_preprocess_faeprofile_contact(&$vars) {
   $contact = $vars['data'];
   unset($vars['data']);
 
-  $vars['email'] = l($contact['email'], 'mailto:' . $contact['email']);
-  $vars['phone'] = $contact['phone'];
-  $vars['webpage'] = l($contact['webpage'], $contact['webpage']);
+  $vars['email'] = (!empty($contact['email'])) ? l($contact['email'], 'mailto:' . $contact['email']) : '';
+  if (module_exists('unimelb_formatters')) {
+    $vars['phone'] = unimelb_formatters_field_formatter_unimelb_html5_phone_link(array('value' => $contact['phone'], 'safe_value' => $contact['phone']));
+  }
+  else {
+    $vars['phone'] = $contact['phone'];
+  }
+  $vars['webpage'] = (!empty($contact['webpage'])) ? l($contact['webpage'], $contact['webpage']) : '';
   $vars['room'] = $contact['room'];
   $vars['building'] = $contact['building'];
   $vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));

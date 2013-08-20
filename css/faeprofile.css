@@ -1,0 +1,16 @@
+/**
+ * Styles.
+ */
+.faeprofile-supervisor-available {
+  color: darkGreen;
+}
+
+.faeprofile-supervisor-unavailable {
+  color: darkRed;
+}
+
+.faeprofile-listDateTime {
+  padding: 0.2em 0.4em;
+  font-size: 0.8em;
+  background: #f4f4f4;
+}
