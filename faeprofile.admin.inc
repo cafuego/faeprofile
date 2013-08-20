@@ -14,7 +14,7 @@ function faeprofile_settings_form() {
   );
 
   $form['faeprofile_information'] = array(
-    '#title' => t('Append extra profile field to main profile tab.'),
+    '#title' => t('Append custom <em>Information</em> profile field to main profile tab.'),
     '#type' => 'checkbox',
     '#default_value' => variable_get('faeprofile_information', 0),
   );
