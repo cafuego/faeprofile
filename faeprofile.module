@@ -5,11 +5,15 @@
 
 /**
  * Helper that is used to create menu callbacks and blocks for the various elements.
+ *
+ * @param $enabled_only
+ *   Boolean that determines whether all or only enabled elemnts should
+ *   be returned.
  */
-function faeprofile_elements() {
-  return array(
+function faeprofile_elements($enabled_only = FALSE) {
+  $elements = array(
     'overview' => t('Overview'),
-    'affiliation' => t('Affiliation'),
+    'affiliations' => t('Affiliation'),
     'publications' => t('Publications'),
     'research' => t('Research'),
     'awards' => t('Awards'),
@@ -18,6 +22,13 @@ function faeprofile_elements() {
     'information' => t('Information'),
     'contact' => t('Contact'),
   );
+
+  if (!$enabled_only) {
+    return $elements;
+  }
+
+  $enabled = array_filter(variable_get('faeprofile_elements', array()));
+  return array_intersect_key($elements, $enabled);
 }
 
 /**
@@ -57,7 +68,7 @@ function faeprofile_menu() {
     'file' => 'faeprofile.admin.inc',
   );
 
-  foreach (faeprofile_elements() as $element => $label) {
+  foreach (faeprofile_elements(TRUE) as $element => $label) {
     if ($element == 'overview' || $element == 'contact') {
       continue;
     }
@@ -112,7 +123,7 @@ function faeprofile_menu_alter(&$items) {
  */
 function faeprofile_block_info() {
   $blocks = array();
-  foreach (faeprofile_elements() as $element => $label) {
+  foreach (faeprofile_elements(TRUE) as $element => $label) {
     $blocks[$element]['info'] = t('Fae Profile: @element', array('@element' => $label));
   }
   return $blocks;
@@ -159,12 +170,25 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
     return;
   }
 
-  $account->content['faeprofile'] = array(
-    '#type' => 'user_profile_item',
-    '#title' => t('@label' , array('@label' => $label)),
-    '#markup' => faeprofile_page_overview($account),
-    '#attributes' => array('class' => array('faeprofile-overview')),
-  );
+  if (user_access('view faeprofile overview')) {
+    $account->content['faeprofile_overview'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => t('@label' , array('@label' => $label)),
+      '#markup' => faeprofile_page_overview($account),
+      '#attributes' => array('class' => array('faeprofile-overview')),
+      '#weight' => -10,
+    );
+  }
+
+  if (variable_get('faeprofile_information', 0) && user_access('view faeprofile information')) {
+    $account->content['faeprofile_information'] = array(
+      '#type' => 'user_profile_item',
+      '#title' => t('@label' , array('@label' => $label)),
+      '#markup' => faeprofile_page_information($account),
+      '#attributes' => array('class' => array('faeprofile-information')),
+      '#weight' => -9,
+    );
+  }
 }
 
 /**
@@ -178,7 +202,7 @@ function faeprofile_preprocess_user_profile(&$variables) {
   }
 
   foreach (element_children($variables['user_profile']) as $element) {
-    if ($element != 'faeprofile') {
+    if ($element != 'faeprofile_overview' && $element != 'faeprofile_information') {
       unset($variables['user_profile'][$element]);
     }
   }
@@ -220,12 +244,12 @@ function faeprofile_theme() {
       'template' => 'faeprofile-contact',
       'path' => drupal_get_path('module', 'faeprofile') . '/templates',
     ),
-    'faeprofile_affiliation' => array(
+    'faeprofile_affiliations' => array(
       'variables' => array(
         'data' => array(),
         'uri' => NULL,
       ),
-      'template' => 'faeprofile-affiliation',
+      'template' => 'faeprofile-affiliations',
       'path' => drupal_get_path('module', 'faeprofile') . '/templates',
     ),
     'faeprofile_publications' => array(
@@ -274,6 +298,11 @@ function faeprofile_theme() {
         'style' => 'medium'
       ),
     ),
+    'faeprofile_affiliation' => array(
+      'variables' => array(
+        'affiliation' => NULL,
+      ),
+    ),
     'faeprofile_publication' => array(
       'variables' => array(
         'publication' => NULL,
@@ -282,6 +311,16 @@ function faeprofile_theme() {
     'faeprofile_grant' => array(
       'variables' => array(
         'grant' => NULL,
+      ),
+    ),
+    'faeprofile_award' => array(
+      'variables' => array(
+        'award' => NULL,
+      ),
+    ),
+    'faeprofile_linkage' => array(
+      'variables' => array(
+        'linkage' => NULL,
       ),
     ),
     'faeprofile_supervisor' => array(
@@ -317,7 +356,7 @@ function theme_faeprofile_supervisor($vars) {
 }
 
 /**
- * Theme an award or grant.
+ * Theme a grant.
  */
 function theme_faeprofile_grant($vars) {
   $output = t('<a href="!link">!title</a> (@scheme) awarded by @organisation', array(
@@ -335,6 +374,45 @@ function theme_faeprofile_grant($vars) {
   }
 
   return $output;
+}
+
+/**
+ * Theme an award.
+ */
+function theme_faeprofile_award($vars) {
+  $output = t('<a href="!link">!title</a>, @organisation', array(
+    '!title' => $vars['award']['award'],
+    '!link' => $vars['award']['link'],
+    '@organisation' => $vars['award']['organisation']
+  ));
+
+  if (!empty($vars['award']['year'])) {
+    $output .= t(' <span class="listDateTime">@year</span>', array(
+      '@year' => $vars['award']['year'],
+    ));
+  }
+
+  return $output;
+}
+
+/**
+ * Theme a linkage.
+ */
+function theme_faeprofile_linkage($vars) {
+  return t('!organisation (@role)', array(
+    '!organisation' => l($vars['linkage']['orgLabel'], $vars['linkage']['org']),
+    '@role' => $vars['linkage']['roleLabel'],
+  ));
+}
+
+/**
+ * Theme an affiliation.
+ */
+function theme_faeprofile_affiliation($vars) {
+  return t('@organisation. @role', array(
+    '@organisation' => $vars['affiliation']['organisation'],
+    '@role' => $vars['affiliation']['role']
+  ));
 }
 
 /**
@@ -386,15 +464,16 @@ function template_preprocess_faeprofile_overview(&$vars) {
 /**
  * Preprocess functions for faeprofile affiliation.
  */
-function template_preprocess_faeprofile_affiliation(&$vars) {
+function template_preprocess_faeprofile_affiliations(&$vars) {
   $affiliations = $vars['data'];
   $vars['affiliations'] = array();
 
   foreach ($affiliations as $affiliation) {
-    $vars['affiliations'][] = array(
+    $temp = array(
       'organisation' => check_plain($affiliation['orgLabel']),
       'role' => check_plain($affiliation['roleLabel']),
     );
+    $vars['affiliations'][] = theme('faeprofile_affiliation', array('affiliation' => $temp));
   }
 }
 
@@ -409,9 +488,8 @@ function template_preprocess_faeprofile_publications(&$vars) {
   $vars['year'] = array();
 
   foreach ($publications as $publication) {
-    // dpm($publication, __FUNCTION__ . ': $publication');
     $datestamp = strtotime($publication['dateValue']);
-    $vars['publications'][] = array(
+    $temp = array(
       'publication' => $publication['publication'],
       'title' => $publication['title'],
       'link' => $publication['article'],
@@ -424,11 +502,8 @@ function template_preprocess_faeprofile_publications(&$vars) {
       'date' => date('Y', $datestamp),
       'year' => date('Y', $datestamp),
     );
-  }
 
-  // Do some grouping of publications by date.
-  foreach ($vars['publications'] as $publication) {
-    $vars['year'][$publication['year']][] = theme('faeprofile_publication', array('publication' => $publication));
+    $vars['publications'][] =  $vars['year'][$temp['year']][] = theme('faeprofile_publication', array('publication' => $temp));
   }
   krsort($vars['year']);
 }
@@ -443,6 +518,7 @@ function template_preprocess_faeprofile_research(&$vars) {
   $vars['research'] = array();
   $vars['grants'] = array();
   $vars['schemes'] = array();
+  $vars['year'] = array();
 
   foreach ($research as $grant) {
     $startstamp = strtotime($grant['dateStart']);
@@ -459,29 +535,48 @@ function template_preprocess_faeprofile_research(&$vars) {
     );
   }
 
-  // Do some grouping of publications by date.
+  // Do some grouping of research grants.
   foreach ($vars['research'] as $grant) {
-    $vars['grants'][] = $vars['schemes'][$grant['scheme']][] = theme('faeprofile_grant', array('grant' => $grant));
+    $vars['grants'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
   }
   krsort($vars['schemes']);
+  krsort($vars['year']);
 }
 
 /**
  * Preprocess functions for faeprofile awards.
  */
 function template_preprocess_faeprofile_awards(&$vars) {
-  dpm($vars, __FUNCTION__);
-  $research = $vars['data'];
-  $vars['research'] = t('TODO');
+  $awards = $vars['data'];
+
+  $vars['awards'] = array();
+  $vars['year'] = array();
+
+  foreach ($awards as $award) {
+    $timestamp = strtotime($award['dateValue']);
+
+    $temp = array(
+      'award' => $award['awardLabel'],
+      'link' => $award['award'],
+      'organisation' => $award['orgLabel'],
+      'year' => (!empty($timestamp)) ? date('Y', $timestamp) : '',
+    );
+    $vars['awards'][] = $vars['year'][$temp['year']][] = theme('faeprofile_award', array('award' => $temp));
+  }
+
+  krsort($vars['year']);
 }
 
 /**
  * Preprocess functions for faeprofile linkages.
  */
 function template_preprocess_faeprofile_linkages(&$vars) {
-  dpm($vars, __FUNCTION__);
   $linkages = $vars['data'];
-  $vars['linkages'] = t('TODO');
+  $vars['linkages'] = array();
+
+  foreach ($linkages as $linkage) {
+    $vars['linkages'][] = theme('faeprofile_linkage', array('linkage' => $linkage));
+  }
 }
 
 /**
@@ -489,7 +584,7 @@ function template_preprocess_faeprofile_linkages(&$vars) {
  */
 function template_preprocess_faeprofile_supervision(&$vars) {
   $supervision = $vars['data'];
-  $vars['available'] = theme_faeprofile_supervisor(array('available' => $supervision['supervisor']));
+  $vars['available'] = theme('faeprofile_supervisor', array('available' => $supervision['supervisor']));
   $vars['overview'] = $supervision['supervisorText1'];
 }
 

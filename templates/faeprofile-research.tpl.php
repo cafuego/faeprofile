@@ -7,6 +7,8 @@
  * $research - An array of all research.
  * $schemes  - An array of research grant schemes, each of which contains an
  *             array of grants.
+ * $year     - An array of years, each of which contains an array of grants
+ *             for that year.
  */
 ?>
 

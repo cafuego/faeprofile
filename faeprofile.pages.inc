@@ -32,15 +32,15 @@ function faeprofile_page_overview($account) {
 /**
  * Affiliation page callback for Find an Expert profile information.
  */
-function faeprofile_page_affiliation($account) {
+function faeprofile_page_affiliations($account) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
     return drupal_not_found();
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
-  $affiliation = uom_fae_api_person_affiliation($uri);
+  $affiliations = uom_fae_api_person_affiliation($uri);
 
-  return theme('faeprofile_affiliation', array('data' => $affiliation, 'uri' => $uri));
+  return theme('faeprofile_affiliations', array('data' => $affiliations, 'uri' => $uri));
 }
 
 /**
