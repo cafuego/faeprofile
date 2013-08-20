@@ -130,7 +130,7 @@ function faeprofile_menu_alter(&$items) {
  */
 function faeprofile_block_info() {
   $blocks = array();
-  foreach (faeprofile_elements(TRUE) as $element => $label) {
+  foreach (faeprofile_elements() as $element => $label) {
     $blocks[$element]['info'] = t('Fae Profile: @element', array('@element' => $label));
   }
   return $blocks;
