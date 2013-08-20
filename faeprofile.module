@@ -303,7 +303,7 @@ function theme_faeprofile_image($vars) {
   if (!$ret) {
     return NULL;
   }
-  $image = $matches[1] . '/pictures/' . $matches[3] . 'picture.JPG';
+  $image = $matches[1] . '/pictures/' . $matches[3] . 'picture.jpg';
 
   return theme('imagecache_external', array('path' => $image, 'style_name' => $vars['style']));
 }
