@@ -383,8 +383,12 @@ function theme_faeprofile_grant($vars) {
  * Theme an award.
  */
 function theme_faeprofile_award($vars) {
+	// If award label start with comma (year is missing at the start), remove it.
+	// e.g. ", Institute for Aegean Prehistory"
+	$title = ltrim($vars['award']['award'], ", ");
+
   $output = t('<a href="!link">!title</a>, @organisation', array(
-    '!title' => $vars['award']['award'],
+    '!title' => $title,
     '!link' => $vars['award']['link'],
     '@organisation' => $vars['award']['organisation']
   ));
@@ -467,7 +471,7 @@ function template_preprocess_faeprofile_overview(&$vars) {
     return;
   }
 
-  $vars['overview'] = $overview['overviewText1'];
+  $vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
 }
 
 /**

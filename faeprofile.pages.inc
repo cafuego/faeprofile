@@ -20,7 +20,7 @@ function faeprofile_page_information($account) {
  */
 function faeprofile_page_overview($account) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
