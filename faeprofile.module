@@ -32,6 +32,14 @@ function faeprofile_elements($enabled_only = FALSE) {
 }
 
 /**
+ * Helper to return a label for a given element.
+ */
+function faeprofile_element_label($element) {
+  $elements = faeprofile_elements();
+  return $elements[$element];
+}
+
+/**
  * Implements hook_init().
  */
 function faeprofile_init() {
@@ -647,4 +655,28 @@ function template_preprocess_faeprofile_contact(&$vars) {
   $vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));
 
   $vars['image'] = theme('faeprofile_image', array('uri' => $uri));
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function faeprofile_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ *
+ * If you do this, Ctools will pick up default panels pages in
+ * <modulename>.pages_default.inc
+ */
+function faeprofile_ctools_plugin_api($module, $api) {
+  if ($module == 'panels_mini' && $api == 'panels_default') {
+    return array('version' => 1);
+  }
+  if ($module == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
 }
