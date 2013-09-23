@@ -83,10 +83,12 @@ function faeprofile_menu() {
     'file' => 'faeprofile.admin.inc',
   );
 
+	/*
   foreach (faeprofile_elements(TRUE) as $element => $label) {
-    if ($element == 'overview' || $element == 'contact') {
+		if ($element == 'overview' || $element == 'contact') {
       continue;
     }
+
     $function = 'faeprofile_page_' . $element;
     $items['user/%user/' . $element] = array(
       'title' => t('@element', array('@element' => $label)),
@@ -99,6 +101,8 @@ function faeprofile_menu() {
       'file' => 'faeprofile.pages.inc',
     );
   }
+	*/
+
   return $items;
 }
 
@@ -182,6 +186,7 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
     return;
   }
 
+	/*
   if (user_access('view faeprofile overview')) {
     $account->content['faeprofile_overview'] = array(
       '#type' => 'user_profile_item',
@@ -190,6 +195,7 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
       '#weight' => -10,
     );
   }
+	*/
 
   if (variable_get('faeprofile_information', 0) && user_access('view faeprofile information')) {
     $account->content['faeprofile_information'] = array(
