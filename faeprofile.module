@@ -686,3 +686,24 @@ function faeprofile_ctools_plugin_api($module, $api) {
     return array('version' => 1);
   }
 }
+
+/**
+ * Implements hook_preprocess_status_messages().
+ *
+ * Remove "An illegal choice has been detected. Please contact the site administrator." 
+ * in exposed view filter in staff listing page. (i.e. http://site.com/about/staff)
+ * https://drupal.org/node/1177882, patch doesn't fix the issue, so remove the error message instead
+ */
+function faeprofile_preprocess_status_messages(&$vars) {
+  $messages = drupal_get_messages('error');
+  if (!empty($messages['error'])) {
+    $errors = $messages['error'];
+    foreach ($errors as $error) {
+      if ($error == t('An illegal choice has been detected. Please contact the site administrator.')) {
+        continue;
+      }
+
+      drupal_set_message($error, 'error');
+    }
+  }
+}
