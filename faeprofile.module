@@ -176,6 +176,26 @@ function faeprofile_block_view($delta) {
 }
 
 /**
+ * Implements hook_user_presave().
+ */
+function faeprofile_user_presave(&$edit, $account, $category) {
+  if (!function_exists('uom_fae_api_person_supervision')) {
+    return;
+  }
+
+  // If missing the user field that stores supervisor status...
+  if (isset($account->field_person_supervision)) {
+    return;
+  }
+
+  // Load the supervisor status from FaE and set a flag on the user.
+  if (!empty($account->field_fae_resource[LANGUAGE_NONE][0]['url'])) {
+    $supervision = uom_fae_api_person_supervision($account->field_fae_resource[LANGUAGE_NONE][0]['url']);
+    $edit['field_person_supervision'][LANGUAGE_NONE][0]['value'] = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
+  }
+}
+
+/**
  * Implements hook_user_view().
  */
 function faeprofile_user_view($account, $view_mode, $langcode) {
