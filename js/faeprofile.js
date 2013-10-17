@@ -2,6 +2,8 @@
   Drupal.behaviors.faeprofile = {
     attach: function(context, settings) {
 			_staff_listing_staff_label();
+
+			_staff_page_hide_empty_tab();
 		}
 	}
 
@@ -19,5 +21,44 @@
     	});
   	});
 	}
+
+	function  _staff_page_hide_empty_tab() {
+		var total_tab_num = $('[id^=quicktabs-tabpage-find_an_expert-]').length;
+		var full_ids = [];
+		
+		var show_ids = [];
+		var hide_ids = [];
+
+		var tmp_objs = $('[id^=quicktabs-tabpage-find_an_expert-]').has('h3');
+		tmp_objs.each(function(){
+			 show_ids.push( $(this).prop('id').split('-').pop() );
+		});
+
+		for(var i=0; i<total_tab_num; i++) { 
+			full_ids.push("" + i); // Need to convert to string
+		}
+
+		jQuery.grep(full_ids, function(el) {
+    	if(jQuery.inArray(el, show_ids) == -1) hide_ids.push(el);
+		});
+
+		// Hide
+		$.each(hide_ids, function(index, value){
+			var div_id = 'quicktabs-tab-find_an_expert-' + value;
+			$('#' + div_id).parent().hide();
+		});
+
+		// Show
+		$.each(show_ids, function(index, value) {
+			if(index == 0) {
+				var div_id = 'quicktabs-tab-find_an_expert-' + value;
+      	$('#' + div_id).parent().addClass('active');
+
+				var div_id_1 = 'quicktabs-tabpage-find_an_expert-' + value;
+				$('#' + div_id_1).removeClass('quicktabs-hide');
+			}
+		});
+	}
+
 })(jQuery);
 
