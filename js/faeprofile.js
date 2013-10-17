@@ -35,12 +35,10 @@
 		});
 
 		for(var i=0; i<total_tab_num; i++) { 
-			full_ids.push("" + i); // Need to convert to string
+			if(jQuery.inArray("" + i, show_ids) == -1) {
+				hide_ids.push("" + i);	
+			}
 		}
-
-		jQuery.grep(full_ids, function(el) {
-    	if(jQuery.inArray(el, show_ids) == -1) hide_ids.push(el);
-		});
 
 		// Hide
 		$.each(hide_ids, function(index, value){
