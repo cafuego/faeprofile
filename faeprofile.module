@@ -184,14 +184,14 @@ function faeprofile_user_presave(&$edit, $account, $category) {
   }
 
   // If missing the user field that stores supervisor status...
-  if (isset($account->field_person_supervision)) {
+  if (!isset($account->field_person_supervision)) {
     return;
   }
 
   // Load the supervisor status from FaE and set a flag on the user.
   if (!empty($account->field_fae_resource[LANGUAGE_NONE][0]['url'])) {
     $supervision = uom_fae_api_person_supervision($account->field_fae_resource[LANGUAGE_NONE][0]['url']);
-    $edit['field_person_supervision'][LANGUAGE_NONE][0]['value'] = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
+    $edit['field_person_supervision']['und'][0]['value'] = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
   }
 }
 
