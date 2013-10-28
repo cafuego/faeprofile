@@ -1,12 +1,13 @@
 (function ($) {
   Drupal.behaviors.faeprofile = {
     attach: function(context, settings) {
-			_staff_listing_staff_label();
+			//_staff_listing_staff_label();
 
 			_staff_page_hide_empty_tab();
 		}
 	}
 
+	/*
 	function _staff_listing_staff_label() {
   	// Initial
   	$('<h4 class="staff_professional">Professional</h4>').insertBefore($('.grouped-staff-list .view-content table.views-table').last());
@@ -21,6 +22,7 @@
     	});
   	});
 	}
+	*/
 
 	function  _staff_page_hide_empty_tab() {
 		var total_tab_num = $('[id^=quicktabs-tabpage-find_an_expert-]').length;
