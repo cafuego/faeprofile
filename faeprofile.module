@@ -309,9 +309,9 @@ function faeprofile_theme() {
       'template' => 'faeprofile-supervision',
       'path' => drupal_get_path('module', 'faeprofile') . '/templates',
     ),
-    'faeprofile_image' => array(
+    'faeprofile_thumbnail' => array(
       'variables' => array(
-        'uri' => NULL,
+        'thumbnail' => NULL,
         'style' => 'medium'
       ),
     ),
@@ -350,16 +350,19 @@ function faeprofile_theme() {
 
 /**
  * Create an image from a FaE resource URI.
+ *
+ * Get:  http://www.findanexpert.unimelb.edu.au/individual/image/thumbnail14551
+ * Want: http://www.findanexpert.unimelb.edu.au/pictures/thumbnail14551picture.jpg
  */
-function theme_faeprofile_image($vars) {
-  if (empty($vars['uri'])) {
+function theme_faeprofile_thumbnail($vars) {
+  if (empty($vars['thumbnail'])) {
     return NULL;
   }
-  $ret = preg_match('/^(http:\/\/[A-Za-z0-9\.-]+)\/[a-z]+\/([a-z]+)([0-9]+)$/', $vars['uri'], $matches);
+  $ret = preg_match('/^(http:\/\/[A-Za-z0-9\.-]+)\/individual\/image\/([a-z0-9]+)$/', $vars['thumbnail'], $matches);
   if (!$ret) {
     return NULL;
   }
-  $image = $matches[1] . '/pictures/' . $matches[3] . 'picture.jpg';
+  $image = $matches[1] . '/pictures/' . $matches[2] . 'picture.jpg';
 
   return theme('imagecache_external', array('path' => $image, 'style_name' => $vars['style']));
 }
@@ -552,7 +555,7 @@ function template_preprocess_faeprofile_research(&$vars) {
   $uri = $vars['uri'];
   $research = $vars['data'];
 
-  $vars['research'] = array();
+  // $vars['research'] = array();
   $vars['grants'] = array();
   $vars['schemes'] = array();
   $vars['year'] = array();
@@ -579,7 +582,7 @@ function template_preprocess_faeprofile_research(&$vars) {
 
   // Do some grouping of research grants.
   foreach ($vars['research'] as $grant) {
-    $vars['grants'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
+    $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('uom_fae_blocks_grant', array('grant' => $grant));
   }
   krsort($vars['schemes']);
   krsort($vars['year']);
@@ -644,6 +647,7 @@ function template_preprocess_faeprofile_supervision(&$vars) {
  * Preprocess functions for faeprofile contact.
  */
 function template_preprocess_faeprofile_contact(&$vars) {
+  dpm($vars, __FUNCTION__ . ': $vars');
   $uri = $vars['uri'];
   $contact = $vars['data'];
   unset($vars['data']);
@@ -660,7 +664,114 @@ function template_preprocess_faeprofile_contact(&$vars) {
   $vars['building'] = $contact['building'];
   $vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));
 
-  $vars['image'] = theme('faeprofile_image', array('uri' => $uri));
+  $vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail']));
+}
+
+/**
+ * Wrappers that help expose our page callbacks.
+ */
+function _faeprofile_account_wrapper($resource) {
+  $account = stdClass();
+  $account->field_fae_resource['und'][0]['url'] = $resource;
+  return $account;
+}
+
+/**
+ * Wrapper for the information page.
+ */
+function faeprofile_information_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_information($account);
+}
+
+/**
+ * Wrapper for the overview page.
+ */
+function faeprofile_overview_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_overview($account);
+}
+
+/**
+ * Wrapper for the affiliations page.
+ */
+function faeprofile_affiliations_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_affiliations($account);
+}
+
+/**
+ * Wrapper for the publications page.
+ */
+function faeprofile_publications_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_publications($account);
+}
+
+/**
+ * Wrapper for the research page.
+ */
+function faeprofile_research_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_research($account);
+}
+
+/**
+ * Wrapper for the awards page.
+ */
+function faeprofile_awards_callback_wrapper($resource) {
+  $account = _faeprofile_awards_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_awards($account);
+}
+
+/**
+ * Wrapper for the linkages page.
+ */
+function faeprofile_linkages_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_linkages($account);
+}
+
+/**
+ * Wrapper for the supervision page.
+ */
+function faeprofile_supervision_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_supervision($account);
+}
+
+/**
+ * Wrapper for the contact page.
+ */
+function faeprofile_contact_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_contact($account);
+}
+
+/**
+ * Implements hook_uom_fae_api_callbacks().
+ */
+function faeprofile_uom_fae_api_callbacks() {
+  return array(
+    'faeprofile_information_callback_wrapper' => t('Person: General information'),
+    'faeprofile_overview_callback_wrapper' => t('Person: Overview'),
+    'faeprofile_affiliations_callback_wrapper' => t('Person: Affiliations'),
+    'faeprofile_publications_callback_wrapper' => t('Person: Publications'),
+    'faeprofile_research_callback_wrapper' => t('Person: Research'),
+    'faeprofile_awards_callback_wrapper' => t('Person: Awards'),
+    'faeprofile_linkages_callback_wrapper' => t('Person: Linkages'),
+    'faeprofile_supervision_callback_wrapper' => t('Person: Supervisor availability'),
+    'faeprofile_contact_callback_wrapper' => t('Person: Contact information'),
+  );
 }
 
 /**
