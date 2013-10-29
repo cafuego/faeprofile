@@ -103,6 +103,14 @@ function faeprofile_menu() {
   }
 	*/
 
+	// Auto assign supervision for users
+	$items['admin/config/people/faeprofile/supervision'] = array(
+    'title' => 'Auto assign supervision status',
+    'page callback' => 'faeprofile_assign_supervision',
+    'access arguments' => array('administer faeprofile'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   return $items;
 }
 
@@ -726,4 +734,41 @@ function faeprofile_preprocess_status_messages(&$vars) {
       drupal_set_message($error, 'error');
     }
   }
+}
+
+
+/**
+ * Auto assign supervision status for each user
+ */
+function faeprofile_assign_supervision() {
+	$uids = array();
+  $query = '
+  	SELECT 
+  		uid
+    FROM
+    	{users}
+    WHERE 
+    	1
+  ';
+    
+  $result = db_query($query);
+  foreach ($result as $row) {
+    $uids[] = $row->uid;
+  }
+  $users = user_load_multiple($uids);
+ 
+ 	foreach($users as $user) {
+ 		if(isset($user->field_fae_resource[LANGUAGE_NONE][0]['url'])) {
+ 			if(isset($user->field_person_supervision)) {
+ 				$supervision = uom_fae_api_person_supervision($user->field_fae_resource[LANGUAGE_NONE][0]['url']);
+	  		$supervision_status = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
+	  		user_save($user, $edit = array('field_person_supervision', $supervision_status));
+			}
+ 		}
+ 	}
+ 
+  $msg = t('Supervision status has been assigned to each user.');
+  drupal_set_message($msg);
+ 	$url = 'admin/config/people/faeprofile';
+ 	drupal_goto($url);
 }
