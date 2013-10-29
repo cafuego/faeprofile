@@ -83,9 +83,9 @@ function faeprofile_menu() {
     'file' => 'faeprofile.admin.inc',
   );
 
-	/*
+/*
   foreach (faeprofile_elements(TRUE) as $element => $label) {
-		if ($element == 'overview' || $element == 'contact') {
+    if ($element == 'overview' || $element == 'contact') {
       continue;
     }
 
@@ -101,10 +101,10 @@ function faeprofile_menu() {
       'file' => 'faeprofile.pages.inc',
     );
   }
-	*/
+*/
 
-	// Auto assign supervision for users
-	$items['admin/config/people/faeprofile/supervision'] = array(
+  // Auto assign supervision for users
+  $items['admin/config/people/faeprofile/supervision'] = array(
     'title' => 'Auto assign supervision status',
     'page callback' => 'faeprofile_assign_supervision',
     'access arguments' => array('administer faeprofile'),
@@ -214,7 +214,7 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
     return;
   }
 
-	/*
+/*
   if (user_access('view faeprofile overview')) {
     $account->content['faeprofile_overview'] = array(
       '#type' => 'user_profile_item',
@@ -223,7 +223,7 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
       '#weight' => -10,
     );
   }
-	*/
+*/
 
   if (variable_get('faeprofile_information', 0) && user_access('view faeprofile information')) {
     $account->content['faeprofile_information'] = array(
@@ -428,9 +428,9 @@ function theme_faeprofile_grant($vars) {
  * Theme an award.
  */
 function theme_faeprofile_award($vars) {
-	// If award label start with comma (year is missing at the start), remove it.
-	// e.g. ", Institute for Aegean Prehistory"
-	$title = ltrim($vars['award']['award'], ", ");
+  // If award label start with comma (year is missing at the start), remove it.
+  // e.g. ", Institute for Aegean Prehistory"
+  $title = ltrim($vars['award']['award'], ", ");
 
   $output = t('<a href="!link">!title</a>, @organisation', array(
     '!title' => $title,
