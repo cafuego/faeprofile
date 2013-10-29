@@ -675,7 +675,6 @@ function template_preprocess_faeprofile_supervision(&$vars) {
  * Preprocess functions for faeprofile contact.
  */
 function template_preprocess_faeprofile_contact(&$vars) {
-  dpm($vars, __FUNCTION__ . ': $vars');
   $uri = $vars['uri'];
   $contact = $vars['data'];
   unset($vars['data']);
