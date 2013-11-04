@@ -3,7 +3,7 @@
     attach: function(context, settings) {
 			//_staff_listing_staff_label();
 
-			_staff_page_hide_empty_tab();
+			//_staff_page_hide_empty_tab();
 		}
 	}
 
@@ -24,6 +24,7 @@
 	}
 	*/
 
+	/*
 	function  _staff_page_hide_empty_tab() {
 		var total_tab_num = $('[id^=quicktabs-tabpage-find_an_expert-]').length;
 		var full_ids = [];
@@ -59,6 +60,7 @@
 			}
 		});
 	}
+	*/
 
 })(jQuery);
 
