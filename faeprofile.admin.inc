@@ -7,6 +7,26 @@
  * Settings form for faeprofile.
  */
 function faeprofile_settings_form() {
+  $form['#tree'] = FALSE;
+
+  $form['cron'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Synchronisation'),
+    '#description' => t('Synchronise supervisor status.'),
+    '#collapsible' => TRUE,
+    '#weight' => 1,
+  );
+
+  $form['cron']['faeprofile_cron'] = array(
+    '#title' => t('Keep supervisor status synchronised.'),
+    '#description' => t('Use cron to synchronise user supervisor status with Find an Expert once a week.'),
+    '#type' => 'checkbox',
+    '#default_value' => (variable_get('faeprofile_cron', 0) == 0) ? 0 : 1,
+  );
+  $form['cron']['faeprofile_sync'] = array(
+    '#markup' => '<a class="button" href="' . url('admin/config/people/faeprofile/update') . '">' . t('Synchronise now') . '</a>',
+  );
+
   $form['faeprofile_main'] = array(
     '#title' => t('Replace main profile tab with <em>Overview</em> from Find an Expert.'),
     '#type' => 'checkbox',
@@ -29,6 +49,7 @@ function faeprofile_settings_form() {
 
   $form['note'] = array(
     '#markup' => t('Find an Expert information is only shown on a user profile if that user has a valid <em>Find an Expert Resource URL</em> entered in their profile.'),
+    '#weight' => -1,
   );
 
   return system_settings_form($form);

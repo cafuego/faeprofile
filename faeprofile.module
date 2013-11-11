@@ -104,11 +104,11 @@ function faeprofile_menu() {
 */
 
   // Auto assign supervision for users
-  $items['admin/config/people/faeprofile/supervision'] = array(
-    'title' => 'Auto assign supervision status',
-    'page callback' => 'faeprofile_assign_supervision',
+  $items['admin/config/people/faeprofile/update'] = array(
+    'title' => t('Update supervision statuses'),
+    'page callback' => 'faeprofile_supervision_update',
     'access arguments' => array('administer faeprofile'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -846,39 +846,148 @@ function faeprofile_preprocess_status_messages(&$vars) {
   }
 }
 
+/**
+ * Implements hook_cron().
+ */
+function faeprofile_cron() {
+  $last_run = variable_get('faeprofile_cron', 0);
+
+  // Early return if we don't need to run at all.
+  if (empty($last_run)) {
+    return;
+  }
+
+  // Next run is last run plus one week.
+  $next_run = $last_run + (60 * 60 * 24 * 7);
+
+  // If the next time we should run is in the future, exit.
+  if ($next_run > time()) {
+    return;
+  }
+
+  $processed = 0;
+  $result = db_query("SELECT uid FROM {users} ORDER BY uid ASC");
+  while ($row = db_fetch_array($result)) {
+    $account = user_load($row['uid'], TRUE);
+    $processed += _faeprofile_update_supervisor_status($account);
+  }
+
+  // Write a log message.
+  watchdog('faeprofile', 'Updated supervisor status for @count users', array('@count' => $processed), WATCHDOG_INFO);
+
+  // Update the last run timestamp.
+  variable_set('faeprofile_cron', time());
+}
 
 /**
- * Auto assign supervision status for each user
+ * Batch functions to update user's supervisor status.
  */
-function faeprofile_assign_supervision() {
-	$uids = array();
-  $query = '
-  	SELECT 
-  		uid
-    FROM
-    	{users}
-    WHERE 
-    	1
-  ';
-    
-  $result = db_query($query);
-  foreach ($result as $row) {
-    $uids[] = $row->uid;
+function faeprofile_supervision_update() {
+  $batch = array(
+    'operations' => array(
+      array('faeprofile_supervisor_batch_process', array()),
+    ),
+    'finished' => 'faeprofile_supervisor_batch_finished',
+    'title' => t('Updating supervisor status'),
+    'init_message' => t('Updating supervisor statuses is starting'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Supervisor status update has encountered an error.'),
+    'file' => drupal_get_path('module', 'faeprofile') . '/faeprofile.batch.inc',
+  );
+  batch_set($batch);
+
+  // Go back to the faeprofile admin page when done.
+  batch_process('admin/config/people/faeprofile');
+}
+
+/**
+ * Auto assign supervision status for each user. This funtion is called
+ * via the Batch API callback.
+ *
+ * Use a helper to actually load and process a user, so we can call that from
+ * hook_cron as well.
+ *
+ * @see https://drupal.org/node/180528
+ */
+function faeprofile_supervisor_batch_process(&$context) {
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['current_user'] = 0;
+    $context['sandbox']['max'] = db_query('SELECT COUNT(DISTINCT uid) FROM {users} WHERE status <> 0')->fetchField();
   }
-  $users = user_load_multiple($uids);
- 
- 	foreach($users as $user) {
- 		if(isset($user->field_fae_resource[LANGUAGE_NONE][0]['url'])) {
- 			if(isset($user->field_person_supervision)) {
- 				$supervision = uom_fae_api_person_supervision($user->field_fae_resource[LANGUAGE_NONE][0]['url']);
-	  		$supervision_status = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
-	  		user_save($user, $edit = array('field_person_supervision', $supervision_status));
-			}
- 		}
- 	}
- 
-  $msg = t('Supervision status has been assigned to each user.');
-  drupal_set_message($msg);
- 	$url = 'admin/config/people/faeprofile';
- 	drupal_goto($url);
+
+  // Process 2 users at a time only.
+  $limit = 2;
+
+  $result = db_select('users', 'u')
+    ->fields('u', array('uid'))
+    ->condition('uid', $context['sandbox']['current_user'], '>')
+    ->condition('status', 0, '<>')
+    ->orderBy('uid', 'ASC')
+    ->range(0, $limit)
+    ->execute();
+
+  foreach ($result as $row) {
+    $account = user_load($row->uid, TRUE);
+    _faeprofile_update_supervisor_status($account);
+
+    // Store some result for post-processing in the finished callback.
+    $context['results'][] = check_plain($account->name);
+
+    // Update our progress information.
+    $context['sandbox']['progress']++;
+    $context['sandbox']['current_user'] = $account->uid;
+    $context['message'] = t('Now processing %user', array('%user' => $account->name));
+  }
+
+  // Inform the batch engine that we are not finished,
+  // and provide an estimation of the completion level we reached.
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+/**
+ * Batch 'finished' callback
+ */
+function faeprofile_supervisor_batch_finished($success, $results, $operations) {
+  if ($success) {
+    // Here we do something meaningful with the results.
+    $message = count($results) .' user profiles processed.';
+    drupal_set_message($message);
+
+    // And make sure cron runs a week from now, if enabled.
+    $faeprofile_cron = variable_get('faeprofile_cron', 0) ;
+    if (!empty($faeprofile_cron)) {
+      variable_set('faeprofile_cron', time());
+    }
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
+    drupal_set_message($message, 'error');
+  }
+}
+
+/**
+ * Helper function that updates a user's supervisor status.
+ *
+ * @param $account
+ *   A user account object.
+ *
+ * @return
+ *   0 if the user did not have an FaE URL and 1 if it did.
+ */
+function _faeprofile_update_supervisor_status($account) {
+  // Early return if no resource URI.
+  if (empty($account->field_fae_resource[LANGUAGE_NONE][0]['url'])) {
+    return 0;
+  }
+
+  $supervision = uom_fae_api_person_supervision($account->field_fae_resource[LANGUAGE_NONE][0]['url']);
+  $supervision_status = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
+  user_save($account, $edit = array('field_person_supervision', $supervision_status));
+  return 1;
 }
