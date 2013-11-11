@@ -866,9 +866,14 @@ function faeprofile_cron() {
   }
 
   $processed = 0;
-  $result = db_query("SELECT uid FROM {users} ORDER BY uid ASC");
-  while ($row = db_fetch_array($result)) {
-    $account = user_load($row['uid'], TRUE);
+  $result = db_select('users', 'u')
+    ->fields('u', array('uid'))
+    ->condition('status', 0, '<>')
+    ->orderBy('uid', 'ASC')
+    ->execute();
+
+  foreach ($result as $row) {
+    $account = user_load($row->uid, TRUE);
     $processed += _faeprofile_update_supervisor_status($account);
   }
 
