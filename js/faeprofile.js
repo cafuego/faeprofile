@@ -45,6 +45,11 @@
 							console.log(item);
 							console.log('end-in-');
 							*/
+
+							var mytext = "h4:contains('" + item + "')";
+							$(mytext).show();
+              $(mytext).next().show();
+              $(mytext).next().next().show();
 						}
 						else {
 					
@@ -52,25 +57,24 @@
 							console.log('start-out-');
             	console.log(item);
             	console.log('end-out-');
-							*/
-						
+					
+							console.log('-start-');
+        			console.log(checked_input_array);
+        			console.log('----');
+        			console.log(study_area_on_page_array);
+        			console.log('-end-');
+							*/	
+
 							var mytext = "h4:contains('" + item + "')";
 							$(mytext).hide();
 							$(mytext).next().hide();
 							$(mytext).next().next().hide();
+
+							
 						}
 					}				
 				}
-
-				/*
-				console.log('-start-');
-				console.log(checked_input_array);
-    	  console.log('----');
-    	  console.log(study_area_on_page_array);
-				console.log('-end-');
-				*/
 			});
-
 
 		});
 	}	
