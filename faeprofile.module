@@ -44,6 +44,7 @@ function faeprofile_element_label($element) {
  */
 function faeprofile_init() {
   drupal_add_css( drupal_get_path('module', 'faeprofile') . '/css/faeprofile.css');
+	drupal_add_js( drupal_get_path('module', 'faeprofile') . '/js/faeprofile.js');
 }
 
 /**
