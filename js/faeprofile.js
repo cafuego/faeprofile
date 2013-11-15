@@ -1,11 +1,10 @@
 (function ($) {
   Drupal.behaviors.faeprofile = {
     attach: function(context, settings) {
+			_hide_position_column();
+
 			$('form[id^="views-exposed-form-staff-page"]').once('staff_listing_func', function(){
-
 				_filter_by_subject_area();
-
-				
 
 			});
 		}
@@ -77,6 +76,18 @@
 			});
 
 		});
-	}	
+	}
+
+	function _hide_position_column() {
+		$(document).ready(function() {
+			$("th:contains('Position')").once().hide();
+			$("td.staff-position").once().hide();
+
+			// Display position for professional
+			$("h4:contains('Professional')").next("table").find("th:contains('Position')").show();
+			$("h4:contains('Professional')").next("table").find("td.staff-position").show();
+		});
+	}
+ 
 })(jQuery);
 
