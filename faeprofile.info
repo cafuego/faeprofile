@@ -6,5 +6,3 @@ core = 7.x
 dependencies[] = imagecache_external
 dependencies[] = uom_fae_api
 dependencies[] = user
-
-scripts[] = js/faeprofile.js

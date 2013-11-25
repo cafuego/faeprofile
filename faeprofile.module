@@ -44,7 +44,6 @@ function faeprofile_element_label($element) {
  */
 function faeprofile_init() {
   drupal_add_css( drupal_get_path('module', 'faeprofile') . '/css/faeprofile.css');
-	drupal_add_js( drupal_get_path('module', 'faeprofile') . '/js/faeprofile.js');
 }
 
 /**
@@ -178,9 +177,20 @@ function faeprofile_block_view($delta) {
     return array();
   }
 
+  // Make the API call and return themed data.
+  $content = call_user_func($function, $account);
+
+  // We need to trim the content, so the block is hidden if all we got is
+  // some stealth whitespace.
+  $content = trim($content);
+
+  if (empty($content)) {
+    return array();
+  }
+
   return array(
     'subject' => t('FaE Profile @delta', array('@delta' => ucwords($delta))),
-    'content' => call_user_func($function, $account),
+    'content' => $content,
   );
 }
 
