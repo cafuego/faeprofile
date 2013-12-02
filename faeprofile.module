@@ -21,6 +21,7 @@ function faeprofile_elements($enabled_only = FALSE) {
     'supervision' => t('Supervision'),
     'information' => t('Information'),
     'contact' => t('Contact'),
+    'qualifications' => t('Qualifications'),
   );
 
   if (!$enabled_only) {
@@ -150,6 +151,9 @@ function faeprofile_menu_alter(&$items) {
  */
 function faeprofile_block_info() {
   $blocks = array();
+  $blocks['faeprofile'] = array(
+    'info' =>  t('Fae Profile: Combined overview'),
+  );
   foreach (faeprofile_elements() as $element => $label) {
     $blocks[$element]['info'] = t('Fae Profile: @element', array('@element' => $label));
   }
@@ -332,6 +336,14 @@ function faeprofile_theme() {
       'template' => 'faeprofile-awards',
       'path' => drupal_get_path('module', 'faeprofile') . '/templates',
     ),
+    'faeprofile_qualifications' => array(
+      'variables' => array(
+        'data' => array(),
+        'uri' => NULL,
+      ),
+      'template' => 'faeprofile-qualifications',
+      'path' => drupal_get_path('module', 'faeprofile') . '/templates',
+    ),
     'faeprofile_linkages' => array(
       'variables' => array(
         'data' => array(),
@@ -372,6 +384,11 @@ function faeprofile_theme() {
     'faeprofile_award' => array(
       'variables' => array(
         'award' => NULL,
+      ),
+    ),
+    'faeprofile_qualification' => array(
+      'variables' => array(
+        'qualification' => NULL,
       ),
     ),
     'faeprofile_linkage' => array(
@@ -621,7 +638,7 @@ function template_preprocess_faeprofile_research(&$vars) {
 
   // Do some grouping of research grants.
   foreach ($vars['research'] as $grant) {
-    $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('uom_fae_blocks_grant', array('grant' => $grant));
+    $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('uom_fae_blocks_research_grant', array('grant' => $grant));
   }
   krsort($vars['schemes']);
   krsort($vars['year']);
@@ -703,6 +720,37 @@ function template_preprocess_faeprofile_contact(&$vars) {
   $vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));
 
   $vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail']));
+}
+
+/**
+ * Preprocess functions for faeprofile qualifications.
+ */
+function template_preprocess_faeprofile_qualifications(&$vars) {
+  $uri = $vars['uri'];
+  $qualifications = $vars['data'];
+  $vars['qualifications'] = array();
+
+  // Early return with empty vars if there are no items to process.
+  if (empty($qualifications)) {
+    return;
+  }
+
+  foreach ($qualifications as $qualification) {
+    $qualification['timestamp'] = strtotime($qualification['dateEnd']);
+    $qualification['year'] = substr($qualification['dateEnd'], 0, 4);
+    $vars['qualifications'][] = theme('faeprofile_qualification', array('qualification' => $qualification));
+  }
+}
+
+/**
+ * Theme a qualification.
+ */
+function theme_faeprofile_qualification($vars) {
+  return t('@degree (@organisation, @year)', array(
+    '@degree' => $vars['qualification']['degreeLabel'],
+    '@organisation' => $vars['qualification']['orgLabel'],
+    '@year' => date('Y', $vars['qualification']['timestamp']),
+  ));
 }
 
 /**
@@ -796,6 +844,15 @@ function faeprofile_contact_callback_wrapper($resource) {
 }
 
 /**
+ * Wrapper for the qualifications page.
+ */
+function faeprofile_qualifications_callback_wrapper($resource) {
+  $account = _faeprofile_account_wrapper($resource);
+  module_load_include('inc', 'faeprofile', 'faeprofile.pages');
+  return faeprofile_page_qualifications($account);
+}
+
+/**
  * Implements hook_uom_fae_api_callbacks().
  */
 function faeprofile_uom_fae_api_callbacks() {
@@ -809,6 +866,7 @@ function faeprofile_uom_fae_api_callbacks() {
     'faeprofile_linkages_callback_wrapper' => t('Person: Linkages'),
     'faeprofile_supervision_callback_wrapper' => t('Person: Supervisor availability'),
     'faeprofile_contact_callback_wrapper' => t('Person: Contact information'),
+    'faeprofile_qualifications_callback_wrapper' => t('Person: Qualifications'),
   );
 }
 

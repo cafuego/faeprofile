@@ -39,6 +39,12 @@ function faeprofile_settings_form() {
     '#default_value' => variable_get('faeprofile_information', 0),
   );
 
+  $form['faeprofile_qualifications'] = array(
+    '#title' => t('Append <em>qualifications</em> to main profile tab.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('faeprofile_qualifications', 0),
+  );
+
   $form['faeprofile_elements'] = array(
     '#title' => t('Find an Expert profile elements'),
     '#type' => 'checkboxes',

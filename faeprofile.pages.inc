@@ -4,6 +4,27 @@
  */
 
 /**
+ * Combined misc information page.
+ */
+function faeprofile_page_faeprofile($account) {
+  // Make a render array with stuff.
+  $page = array(
+    'information' => array(
+      '#markup' => faeprofile_page_information($account),
+    ),
+    'overview' => array(
+      '#markup' => faeprofile_page_overview($account),
+    ),
+    'qualifications' => array(
+      '#markup' => faeprofile_page_qualifications($account),
+    ),
+  );
+
+  // Render and return.
+  return drupal_render($page);
+}
+
+/**
  * Profile tab for extra non-FaE information.
  */
 function faeprofile_page_information($account) {
@@ -127,3 +148,16 @@ function faeprofile_page_contact($account) {
   return theme('faeprofile_contact', array('data' => $contact, 'uri' => $uri));
 }
 
+/**
+ * Qualifications page callback for Find an Expert profile information.
+ */
+function faeprofile_page_qualifications($account) {
+  if (empty($account->field_fae_resource['und'][0]['url'])) {
+    return drupal_not_found();
+  }
+
+  $uri = $account->field_fae_resource['und'][0]['url'];
+  $qualifications = uom_fae_api_person_qualifications($uri);
+
+  return theme('faeprofile_qualifications', array('data' => $qualifications, 'uri' => $uri));
+}
