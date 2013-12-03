@@ -11,4 +11,5 @@ function faeprofile_uninstall() {
   variable_del('faeprofile_main');
   variable_del('faeprofile_information');
   variable_del('faeprofile_elements');
+  variable_del('faeprofile_faeprofile');
 }

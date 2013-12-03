@@ -768,7 +768,7 @@ function _faeprofile_account_wrapper($resource) {
 function faeprofile_information_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_information($account);
+  return faeprofile_page_information($account, FALSE);
 }
 
 /**
@@ -777,7 +777,7 @@ function faeprofile_information_callback_wrapper($resource) {
 function faeprofile_overview_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_overview($account);
+  return faeprofile_page_overview($account, FALSE);
 }
 
 /**
@@ -786,7 +786,7 @@ function faeprofile_overview_callback_wrapper($resource) {
 function faeprofile_affiliations_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_affiliations($account);
+  return faeprofile_page_affiliations($account, FALSE);
 }
 
 /**
@@ -795,7 +795,7 @@ function faeprofile_affiliations_callback_wrapper($resource) {
 function faeprofile_publications_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_publications($account);
+  return faeprofile_page_publications($account, FALSE);
 }
 
 /**
@@ -804,7 +804,7 @@ function faeprofile_publications_callback_wrapper($resource) {
 function faeprofile_research_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_research($account);
+  return faeprofile_page_research($account, FALSE);
 }
 
 /**
@@ -813,7 +813,7 @@ function faeprofile_research_callback_wrapper($resource) {
 function faeprofile_awards_callback_wrapper($resource) {
   $account = _faeprofile_awards_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_awards($account);
+  return faeprofile_page_awards($account, FALSE);
 }
 
 /**
@@ -822,7 +822,7 @@ function faeprofile_awards_callback_wrapper($resource) {
 function faeprofile_linkages_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_linkages($account);
+  return faeprofile_page_linkages($account, FALSE);
 }
 
 /**
@@ -831,7 +831,7 @@ function faeprofile_linkages_callback_wrapper($resource) {
 function faeprofile_supervision_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_supervision($account);
+  return faeprofile_page_supervision($account, FALSE);
 }
 
 /**
@@ -840,7 +840,7 @@ function faeprofile_supervision_callback_wrapper($resource) {
 function faeprofile_contact_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_contact($account);
+  return faeprofile_page_contact($account, FALSE);
 }
 
 /**
@@ -849,7 +849,7 @@ function faeprofile_contact_callback_wrapper($resource) {
 function faeprofile_qualifications_callback_wrapper($resource) {
   $account = _faeprofile_account_wrapper($resource);
   module_load_include('inc', 'faeprofile', 'faeprofile.pages');
-  return faeprofile_page_qualifications($account);
+  return faeprofile_page_qualifications($account, FALSE);
 }
 
 /**

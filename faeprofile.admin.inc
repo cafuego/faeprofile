@@ -33,16 +33,12 @@ function faeprofile_settings_form() {
     '#default_value' => variable_get('faeprofile_main', 0),
   );
 
-  $form['faeprofile_information'] = array(
-    '#title' => t('Append custom <em>Information</em> profile field to main profile tab.'),
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('faeprofile_information', 0),
-  );
-
-  $form['faeprofile_qualifications'] = array(
-    '#title' => t('Append <em>qualifications</em> to main profile tab.'),
-    '#type' => 'checkbox',
-    '#default_value' => variable_get('faeprofile_qualifications', 0),
+  $form['faeprofile_faeprofile'] = array(
+    '#title' => t('Append to <em>Overview</em> tab'),
+    '#type' => 'checkboxes',
+    '#options' => faeprofile_elements(),
+    '#description' => t('All selected elements will be appended (in order listed) to the <em>Overview</em> profile tab.'),
+    '#default_value' => variable_get('faeprofile_faeprofile', array()),
   );
 
   $form['faeprofile_elements'] = array(

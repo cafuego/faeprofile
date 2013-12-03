@@ -4,21 +4,22 @@
  */
 
 /**
- * Combined misc information page.
+ * Combined selected information page.
  */
 function faeprofile_page_faeprofile($account) {
-  // Make a render array with stuff.
-  $page = array(
-    'information' => array(
-      '#markup' => faeprofile_page_information($account),
-    ),
-    'overview' => array(
-      '#markup' => faeprofile_page_overview($account),
-    ),
-    'qualifications' => array(
-      '#markup' => faeprofile_page_qualifications($account),
-    ),
-  );
+  $enabled = array_filter(variable_get('faeprofile_faeprofile', array()));
+  $elements = faeprofile_elements();
+
+  // Pop all enabled main tab elements in a render array.
+  $page = array();
+  foreach ($enabled as $element) {
+    if (!empty($elements[$element]) && user_access('view faeprofile ' . $element)) {
+      $callback = 'faeprofile_page_' . $element;
+      if (function_exists($callback)) {
+        $page[$element] = array('#markup' => $callback($account, FALSE));
+      }
+    }
+  }
 
   // Render and return.
   return drupal_render($page);
@@ -27,10 +28,10 @@ function faeprofile_page_faeprofile($account) {
 /**
  * Profile tab for extra non-FaE information.
  */
-function faeprofile_page_information($account) {
+function faeprofile_page_information($account, $page = TRUE) {
   $profile = field_get_items('user', $account, 'field_profile_profile');
   if (!variable_get('faeprofile_information', 0) && empty($profile)) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   return theme('faeprofile_information', array('data' => $profile));
@@ -39,9 +40,9 @@ function faeprofile_page_information($account) {
 /**
  * Overview page callback for Find an Expert profile information.
  */
-function faeprofile_page_overview($account) {
+function faeprofile_page_overview($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return '';
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -53,9 +54,9 @@ function faeprofile_page_overview($account) {
 /**
  * Affiliation page callback for Find an Expert profile information.
  */
-function faeprofile_page_affiliations($account) {
+function faeprofile_page_affiliations($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -67,9 +68,9 @@ function faeprofile_page_affiliations($account) {
 /**
  * Publications page callback for Find an Expert profile information.
  */
-function faeprofile_page_publications($account) {
+function faeprofile_page_publications($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -81,9 +82,9 @@ function faeprofile_page_publications($account) {
 /**
  * Research page callback for Find an Expert profile information.
  */
-function faeprofile_page_research($account) {
+function faeprofile_page_research($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -95,9 +96,9 @@ function faeprofile_page_research($account) {
 /**
  * Awards page callback for Find an Expert profile information.
  */
-function faeprofile_page_awards($account) {
+function faeprofile_page_awards($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -109,9 +110,9 @@ function faeprofile_page_awards($account) {
 /**
  * Linkages page callback for Find an Expert profile information.
  */
-function faeprofile_page_linkages($account) {
+function faeprofile_page_linkages($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -123,9 +124,9 @@ function faeprofile_page_linkages($account) {
 /**
  * Supervision page callback for Find an Expert profile information.
  */
-function faeprofile_page_supervision($account) {
+function faeprofile_page_supervision($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -137,9 +138,9 @@ function faeprofile_page_supervision($account) {
 /**
  * Contact page callback for Find an Expert profile information.
  */
-function faeprofile_page_contact($account) {
+function faeprofile_page_contact($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
@@ -151,9 +152,9 @@ function faeprofile_page_contact($account) {
 /**
  * Qualifications page callback for Find an Expert profile information.
  */
-function faeprofile_page_qualifications($account) {
+function faeprofile_page_qualifications($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
-    return drupal_not_found();
+    return $page ? drupal_not_found() : '';
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
