@@ -12,11 +12,13 @@
  */
 ?>
 
-<?php if ($grants): ?>
-  <h3>Investigator on</h3>
-  <ul>
-  <?php foreach ($grants as $grant): ?>
-    <li><?php print $grant; ?></li>
-  <?php endforeach; ?>
-  </ul>
+<?php if(isset($year) && is_array($year)): ?>
+	<?php foreach($year as $each_year_key => $each_year): ?>
+		<h4><?php echo $each_year_key ?></h4>
+		<ul>
+			<?php foreach($each_year as $each_project): ?>
+				<li><?php echo $each_project ?></li>
+			<?php endforeach; ?>
+		</ul>
+	<?php endforeach; ?>	
 <?php endif; ?>
