@@ -14,10 +14,18 @@
 
 <?php if(isset($year) && is_array($year)): ?>
 	<?php foreach($year as $each_year_key => $each_year): ?>
-		<h4><?php echo $each_year_key ?></h4>
+		<?php 
+			if(empty($each_year_key)) {
+				$each_year_key_label = 'Other';
+			}
+			else {
+				$each_year_key_label = $each_year_key;
+			} 
+		?>
+		<h4><?php echo $each_year_key_label ?></h4>
 		<ul>
 			<?php foreach($each_year as $each_project): ?>
-				<li><?php echo $each_project ?></li>
+				<li class="faeprofile-block-research-list-item"><?php echo $each_project ?></li>
 			<?php endforeach; ?>
 		</ul>
 	<?php endforeach; ?>	
