@@ -503,9 +503,10 @@ function theme_faeprofile_affiliation($vars) {
  * Theme a publication.
  */
 function theme_faeprofile_publication($vars) {
-  $output = t('<a href="!link">!title</a>. %publication @publisher', array(
+  $output	= t('<a href="!link">!title</a>. <i>@book</i> %publication @publisher', array(
     '!title' => strip_tags($vars['publication']['title']),
     '!link' => $vars['publication']['link'],
+		'@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
     '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
     '@publisher' => $vars['publication']['publisher']));
 
@@ -597,6 +598,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
       'page_start' => $publication['pageStart'],
       'page_end' => $publication['pageEnd'],
       'edition' => $publication['edition'],
+			'book' => $publication['book'],
       'volume' => $publication['volume'],
       'isbn13' => $publication['isbn13'],
       'date' => date('Y', $datestamp),
