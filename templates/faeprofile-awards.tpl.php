@@ -6,7 +6,7 @@
  *
  * $awards - An array of all awards.
  * $year   - An array of years, each of which contains an array of awards
- *           for that year.
+ *           for that year. (Note: I disable it. Please see template_preprocess_faeprofile_awards)
  */
 ?>
 

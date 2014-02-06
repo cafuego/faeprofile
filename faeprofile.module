@@ -658,6 +658,7 @@ function template_preprocess_faeprofile_awards(&$vars) {
 
   $vars['awards'] = array();
   $vars['year'] = array();
+	$tmp_array = array();
 
   // Early return with empty vars if there are no items to process.
   if (empty($awards)) {
@@ -673,10 +674,23 @@ function template_preprocess_faeprofile_awards(&$vars) {
       'organisation' => $award['orgLabel'],
       'year' => (!empty($timestamp)) ? date('Y', $timestamp) : '',
     );
-    $vars['awards'][] = $vars['year'][$temp['year']][] = theme('faeprofile_award', array('award' => $temp));
+		$tmp_array[] = $temp;
+		// Disable
+    //$vars['awards'][] = $vars['year'][$temp['year']][] = theme('faeprofile_award', array('award' => $temp));
   }
 
-  krsort($vars['year']);
+	// Disable 
+  //krsort($vars['year']);
+
+	// Sort by year desc
+  usort($tmp_array, function($a, $b) {
+    return $b['year'] - $a['year'];
+  });	
+
+	//
+	foreach($tmp_array as $element) {
+		$vars['awards'][] = theme('faeprofile_award', array('award' => $element));
+	}
 }
 
 /**
