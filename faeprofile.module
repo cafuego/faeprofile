@@ -735,6 +735,7 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
   $uri = $vars['uri'];
   $qualifications = $vars['data'];
   $vars['qualifications'] = array();
+	$tmp_array = array();
 
   // Early return with empty vars if there are no items to process.
   if (empty($qualifications)) {
@@ -744,8 +745,20 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
   foreach ($qualifications as $qualification) {
     $qualification['timestamp'] = strtotime($qualification['dateEnd']);
     $qualification['year'] = substr($qualification['dateEnd'], 0, 4);
-    $vars['qualifications'][] = theme('faeprofile_qualification', array('qualification' => $qualification));
+    //$vars['qualifications'][] = theme('faeprofile_qualification', array('qualification' => $qualification));
+		$tmp_array[] = $qualification;
   }
+
+	// Sort by year desc
+	usort($tmp_array, function($a, $b) {
+    return $b['year'] - $a['year'];
+	});
+
+	// 
+	foreach($tmp_array as $element) {
+		$vars['qualifications'][] = theme('faeprofile_qualification', array('qualification' => $element));
+	}
+
 }
 
 /**
