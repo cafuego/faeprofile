@@ -503,8 +503,9 @@ function theme_faeprofile_affiliation($vars) {
  * Theme a publication.
  */
 function theme_faeprofile_publication($vars) {
-  $output	= t('<a href="!link">!title</a>. <i>@book</i> %publication @publisher', array(
+  $output	= t('<a href="!link">!title</a>. @co_author_text <i>@book</i> %publication @publisher', array(
     '!title' => strip_tags($vars['publication']['title']),
+		'@co_author_text' => !empty($vars['publication']['co_author_text']) ? strip_tags($vars['publication']['co_author_text']). '.' : '',
     '!link' => $vars['publication']['link'],
 		'@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
     '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
@@ -590,6 +591,9 @@ function template_preprocess_faeprofile_publications(&$vars) {
 
   foreach ($publications as $publication) {
     $datestamp = strtotime($publication['dateValue']);
+
+		$co_author_text = _faeprofile_co_author_text($publication['article'], $publication['targetPersonName']);
+
     $temp = array(
       'publication' => $publication['publication'],
       'title' => $publication['title'],
@@ -603,6 +607,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
       'isbn13' => $publication['isbn13'],
       'date' => date('Y', $datestamp),
       'year' => date('Y', $datestamp),
+			'co_author_text' => $co_author_text,
     );
 
     $vars['publications'][] =  $vars['year'][$temp['year']][] = theme('faeprofile_publication', array('publication' => $temp));
@@ -1097,4 +1102,29 @@ function _faeprofile_update_supervisor_status($account) {
   $supervision_status = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
   user_save($account, $edit = array('field_person_supervision', $supervision_status));
   return 1;
+}
+
+function _faeprofile_co_author_text($article_uri, $target_person_name) {
+  $args = array(
+  	':uri' => $article_uri,
+  );
+  $author_names = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAMES, $args);
+
+	$tmp_array = array();
+	foreach($author_names['rows'] as $row) {
+		if($row['personLabel'] === $target_person_name) {
+			// Skip
+		} else {
+			$tmp_array[] = ucwords(strtolower($row['personLabel']));			
+		}
+	}
+
+	$return_string = '';
+	if(count($tmp_array) > 0) {
+		$return_string = implode(', ', $tmp_array);
+	} else {
+
+	}
+	
+	return $return_string;
 }
