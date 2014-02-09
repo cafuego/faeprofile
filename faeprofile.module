@@ -519,6 +519,9 @@ function theme_faeprofile_publication($vars) {
   else if (!empty($vars['publication']['edition'])) {
     $output .= t(' @edition', array('@edition' => $vars['publication']['edition']));
   }
+	else {
+		$output .= t(' '); // space
+	}
 
   if (!empty($vars['publication']['page_start'])) {
     $output .= t(':@start', array('@start' => $vars['publication']['page_start']));
