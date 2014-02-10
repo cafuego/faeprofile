@@ -503,6 +503,7 @@ function theme_faeprofile_affiliation($vars) {
  * Theme a publication.
  */
 function theme_faeprofile_publication($vars) {
+	/* Proposed fix
   $output	= t('<a href="!link">!title</a>. @co_author_text <i>@book</i> %publication @publisher @type', array(
     '!title' => strip_tags($vars['publication']['title']),
 		'@co_author_text' => !empty($vars['publication']['co_author_text']) ? strip_tags($vars['publication']['co_author_text']). '.' : '',
@@ -512,6 +513,18 @@ function theme_faeprofile_publication($vars) {
     '@publisher' => $vars['publication']['publisher']. '.',
 		'@type' => $vars['publication']['type']. '.',
 	));
+	*/
+
+	$output = t('<a href="!link">!title</a>. %publication @publisher', array(
+    '!title' => strip_tags($vars['publication']['title']),
+    '@co_author_text' => !empty($vars['publication']['co_author_text']) ? strip_tags($vars['publication']['co_author_text']). '.' : '',
+    '!link' => $vars['publication']['link'],
+    '@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
+    '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
+    '@publisher' => $vars['publication']['publisher']. '.',
+    '@type' => $vars['publication']['type']. '.',
+  ));
+
 
   if (!empty($vars['publication']['volume'])) {
     $output .= t(' @volume', array('@volume' => $vars['publication']['volume']));
