@@ -667,10 +667,12 @@ function template_preprocess_faeprofile_research(&$vars) {
 
   // Do some grouping of research grants.
   foreach ($vars['research'] as $grant) {
-    $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('uom_fae_blocks_research_grant', array('grant' => $grant));
+    $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
   }
+	
   krsort($vars['schemes']);
   krsort($vars['year']);
+
 }
 
 /**
