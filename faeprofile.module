@@ -390,6 +390,11 @@ function faeprofile_theme() {
         'publication' => NULL,
       ),
     ),
+		'faeprofile_publication_journal' => array(
+      'variables' => array(
+        'publication' => NULL,
+      ),
+    ),
     'faeprofile_grant' => array(
       'variables' => array(
         'grant' => NULL,
@@ -513,76 +518,67 @@ function theme_faeprofile_affiliation($vars) {
  * Theme a publication as default.
  */ 
 function theme_faeprofile_publication_default($vars) {
-	/* Proposed fix
-  $output	= t('<a href="!link">!title</a>. @co_author_text <i>@book</i> %publication @publisher @type', array(
-    '!title' => strip_tags($vars['publication']['title']),
-		'@co_author_text' => !empty($vars['publication']['co_author_text']) ? strip_tags($vars['publication']['co_author_text']). '.' : '',
-    '!link' => $vars['publication']['link'],
-		'@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
-    '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
-    '@publisher' => $vars['publication']['publisher']. '.',
-		'@type' => $vars['publication']['type']. '.',
+	$output = ' ';
+
+	$part_head = t('@author_text "<a href="!link">!title</a>". @editor_text <i>@parent</i> @publisher', array(
+		'!title' => strip_tags($vars['publication']['title']),
+		'@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
+		'@editor_text' => !empty($vars['publication']['editor_text']) ? $vars['publication']['editor_text']. '.' : '',
+		'!link' => $vars['publication']['link'],
+		'@parent' => !empty($vars['publication']['parent']) ? strip_tags($vars['publication']['parent']). '.' : '',
+		'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher']. ',' : '',
 	));
-	*/
 
-	$output = '';
+	//$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+	$part_year = t(' @year,', array('@year' => $vars['publication']['year']));
 
-	$part_head = t('@author_text <a href="!link">!title</a>. %publication @publisher @type_text', array(
-    '!title' => strip_tags($vars['publication']['title']),
-    '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
-    '!link' => $vars['publication']['link'],
-    '@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
-    '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
-    '@publisher' => $vars['publication']['publisher']. '.',
-    '@type_text' => $vars['publication']['type_text']. '.',
-  ));
-
-
-  if (!empty($vars['publication']['volume'])) {
-    $part_edition = $vars['publication']['volume'];
-  }
-  else if (!empty($vars['publication']['edition'])) {
-    $part_edition = $vars['publication']['edition'];
-  }
+	// Volume or edition
+	if (!empty($vars['publication']['volume'])) {
+		$part_edition = $vars['publication']['volume'];
+	}
+	else if (!empty($vars['publication']['edition'])) {
+		$part_edition = $vars['publication']['edition'];
+	}
 	else {
-		$part_edition = ''; 
+		$part_edition = '';
 	}
 
-  if (!empty($vars['publication']['page_start_end'])) {
-    $page_start_end = $vars['publication']['page_start_end'];
-  }
+	// Page
+	if (!empty($vars['publication']['page_start_end'])) {
+		$page_start_end = t(' pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
+	}
 	else {
 		$page_start_end = '';
 	}
 
-	$tmp_array = array($part_edition, $page_start_end); 
-	$combined_edition = implode(':', array_filter($tmp_array));		
-	$combined_edition = t(' @combined_edition', array('@combined_edition' => $combined_edition));	
+	// Combine volume/edition with page
+	$tmp_array = array($part_edition, $page_start_end);
+	$combined_edition = implode(', ', array_filter($tmp_array));
+	$combined_edition = t(' @combined_edition', array('@combined_edition' => $combined_edition));
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 
-	$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+	$output = $part_head. $part_year. $combined_edition. $type_text;
 
-  $output = $part_head. $combined_edition. $part_year;
-
-  return $output;
+	return $output;	
 }
 
 // 
 function theme_faeprofile_publication_whole_book($vars) {
 	$output = ' ';	
 
-	$part_head = t('@author_text <i><a href="!link">!title</a></i>. @publisher @type_text', array(
+	$part_head = t('@author_text <i><a href="!link">!title</a></i>. @publisher', array(
     '!title' => strip_tags($vars['publication']['title']),
     '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
     '!link' => $vars['publication']['link'],
-    '@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
-    '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
-    '@publisher' => $vars['publication']['publisher']. '.',
-    '@type_text' => $vars['publication']['type_text']. '.',
+   	'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher']. ',' : '', 
   ));
 
-	$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+	//$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
 	
-	$output = $part_head. $part_year; 
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+
+	$output = $part_head. $part_year. $type_text; 
 
 	return $output;
 }
@@ -591,24 +587,88 @@ function theme_faeprofile_publication_whole_book($vars) {
 function theme_faeprofile_publication_chapter($vars) {
   $output = ' ';
 
-  $part_head = t('@author_text <i><a href="!link">!title</a></i>. @editor_text @publisher @type_text', array(
+  $part_head = t('@author_text "<a href="!link">!title</a>". @editor_text <i>@parent</i> @publisher', array(
     '!title' => strip_tags($vars['publication']['title']),
     '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
 		'@editor_text' => !empty($vars['publication']['editor_text']) ? $vars['publication']['editor_text']. '.' : '',
     '!link' => $vars['publication']['link'],
-    '@book' => !empty($vars['publication']['book']) ? strip_tags($vars['publication']['book']). '.' : '',
-    '%publication' => !empty($vars['publication']['publication']) ? $vars['publication']['publication'] . '.' : '',
-    '@publisher' => $vars['publication']['publisher']. '.',
-    '@type_text' => $vars['publication']['type_text']. '.',
+    '@parent' => !empty($vars['publication']['parent']) ? strip_tags($vars['publication']['parent']). '.' : '',
+    '@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher']. ',' : '',
   ));
 
-  $part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+  //$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
+	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
 
-  $output = $part_head. $part_year;
+	// Volume or edition
+	if (!empty($vars['publication']['volume'])) {
+    $part_edition = $vars['publication']['volume'];
+  }
+  else if (!empty($vars['publication']['edition'])) {
+    $part_edition = $vars['publication']['edition'];
+  }
+  else {
+    $part_edition = '';
+  }
+
+	// Page
+	if (!empty($vars['publication']['page_start_end'])) {
+    $page_start_end = t(' pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
+  }
+  else {
+    $page_start_end = '';
+  }
+
+	// Combine volume/edition with page
+	$tmp_array = array($part_edition, $page_start_end);
+  $combined_edition = implode(', ', array_filter($tmp_array));
+  $combined_edition = t(', @combined_edition', array('@combined_edition' => $combined_edition));
+
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+
+  $output = $part_head. $part_year. $combined_edition. $type_text;
 
   return $output;
 }
 
+//
+function theme_faeprofile_publication_journal($vars) {
+	$output = '';
+
+	$part_head = t('@author_text "<i><a href="!link">!title</a></i>". @publisher', array(
+    '!title' => strip_tags($vars['publication']['title']),
+    '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
+    '!link' => $vars['publication']['link'],
+    '@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher'] : '',
+  ));
+
+	// Volume or edition
+  if (!empty($vars['publication']['volume'])) {
+    $part_edition = ' Vol. '. $vars['publication']['volume'];
+  }
+  else if (!empty($vars['publication']['edition'])) {
+    $part_edition = ' Vol. '. $vars['publication']['edition'];
+  }
+  else {
+    $part_edition = '';
+  }
+
+	$part_issue = !empty($vars['publication']['issue_num']) ? ' No. '. $vars['publication']['issue_num'] : '';
+	$part_year = t(', @year', array('@year' => $vars['publication']['year']));
+
+	// Page
+  if (!empty($vars['publication']['page_start_end'])) {
+    $page_start_end = t(', pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
+  }
+  else {
+    $page_start_end = '';
+  }
+
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	
+	$output = $part_head. $part_edition. $part_issue. $part_year. $page_start_end. $type_text;
+
+	return $output;
+}
 
 /**
  * Preprocess functions for faeprofile information.
@@ -685,8 +745,9 @@ function template_preprocess_faeprofile_publications(&$vars) {
       'publisher' => $publication['publishOrg'],
 			'page_start_end' => $page_start_end_text,
       'edition' => $publication['edition'],
-			'book' => $publication['book'],
+			'parent' => $publication['parent'],
       'volume' => $publication['volume'],
+			'issue_num' => $publication['issueNum'],
       'isbn13' => $publication['isbn13'],
       'date' => date('Y', $datestamp),
       'year' => date('Y', $datestamp),
@@ -1373,7 +1434,7 @@ function _faeprofile_publication_select_theme($pub) {
   }
 	else if(in_array($type_code, $journal_array)) {
 		// Journal
-
+		$output = theme('faeprofile_publication_journal', array('publication' => $pub));
 	}
 	else {
 		// Default
