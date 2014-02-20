@@ -18,3 +18,8 @@
 .faeprofile-block-research-list-item {
 	margin-bottom: 15px;
 }
+
+/* When there are too many tabs, the tab size needs to be smaller */
+div#quicktabs-find_an_expert ul.quicktabs-tabs li {
+	font-size: 90%;
+}
