@@ -1260,7 +1260,8 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 
 	$tmp_array = array();
 	foreach($author_names['rows'] as $row) {
-		$tmp_array[] = ucwords(strtolower($row['personLabel']));
+		$person_name = _faeprofile_remove_title(strtolower($row['personLabel']));		
+		$tmp_array[] = ucwords($person_name);
 	}
 
 	$return_string = '';
@@ -1293,7 +1294,8 @@ function _faeprofile_editor_text($article_uri) {
     	break;
 		}
 		else {
-			$editor_names[] = $editor_name;
+			$person_name = _faeprofile_remove_title(strtolower($editor_name));
+			$editor_names[] = ucwords($person_name);;
 		}
 
 		++$i;
@@ -1444,5 +1446,31 @@ function _faeprofile_publication_select_theme($pub) {
 	return $output;
 }
 
+function _faeprofile_remove_title($text) {
+	/*
+		e.g. $text = 'mr anthony gardner';
+	*/
 
+	$output = $text;
+
+	$title_array = array(
+		'mr',
+		'mrs',
+		'miss',
+		'prof',
+		'a\/prof', // escape
+		'dr',
+	);
+
+	foreach($title_array as $element) {
+		$pattern_check = '/^'. $element. '/';
+		$pattern_replace = '/'. $element. '/';
+		if(preg_match($pattern_check, $text)) {
+			$output = preg_replace($pattern_replace, '', $text, 1);
+			break;
+		}
+	}
+	
+	return $output;
+}
 
