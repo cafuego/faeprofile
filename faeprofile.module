@@ -636,7 +636,7 @@ function theme_faeprofile_publication_chapter($vars) {
 function theme_faeprofile_publication_journal($vars) {
 	$output = '';
 
-	$part_head = t('@author_text "<i><a href="!link">!title</a></i>". @published_in', array(
+	$part_head = t('@author_text "<a href="!link">!title</a>". <i>@published_in</i>', array(
     '!title' => strip_tags($vars['publication']['title']),
     '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
     '!link' => $vars['publication']['link'],
