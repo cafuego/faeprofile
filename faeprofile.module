@@ -29,6 +29,7 @@ function faeprofile_elements($enabled_only = FALSE) {
   }
 
   $enabled = array_filter(variable_get('faeprofile_elements', array()));
+
   return array_intersect_key($elements, $enabled);
 }
 
@@ -157,6 +158,7 @@ function faeprofile_block_info() {
   foreach (faeprofile_elements() as $element => $label) {
     $blocks[$element]['info'] = t('Fae Profile: @element', array('@element' => $label));
   }
+
   return $blocks;
 }
 
@@ -634,11 +636,12 @@ function theme_faeprofile_publication_chapter($vars) {
 function theme_faeprofile_publication_journal($vars) {
 	$output = '';
 
-	$part_head = t('@author_text "<i><a href="!link">!title</a></i>". @publisher', array(
+	$part_head = t('@author_text "<i><a href="!link">!title</a></i>". @published_in', array(
     '!title' => strip_tags($vars['publication']['title']),
     '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
     '!link' => $vars['publication']['link'],
-    '@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher'] : '',
+		'@published_in' => !empty($vars['publication']['publication']) ? strip_tags($vars['publication']['publication']). '.' : '',
+    //'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher'] : '',
   ));
 
 	// Volume or edition
@@ -651,6 +654,14 @@ function theme_faeprofile_publication_journal($vars) {
   else {
     $part_edition = '';
   }
+
+	// Issue number
+	if(!empty($vars['publication']['my_issue_num'])) {
+		$part_issue_num = ', Issue '. $vars['publication']['my_issue_num'];
+	}
+	else {
+		$part_issue_num = '';
+	}
 
 	$part_issue = !empty($vars['publication']['issue_num']) ? ' No. '. $vars['publication']['issue_num'] : '';
 	$part_year = t(', @year', array('@year' => $vars['publication']['year']));
@@ -665,7 +676,7 @@ function theme_faeprofile_publication_journal($vars) {
 
 	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 	
-	$output = $part_head. $part_edition. $part_issue. $part_year. $page_start_end. $type_text;
+	$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end. $type_text;
 
 	return $output;
 }
@@ -737,7 +748,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
 		$type_array = _faeprofile_publication_type($publication['type']);
 
     $temp = array(
-      'publication' => $publication['publication'], // e.g. <http://findanexpert.unimelb.edu.au/xxxxx>
+      'publication' => $publication['publication'], // e.g. published in Journal of Sport History (i.e. journal) 
       'title' => $publication['title'],
       'link' => $publication['article'],
 			'type_code' => $type_array['type_code'],
@@ -748,6 +759,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
 			'parent' => $publication['parent'],
       'volume' => $publication['volume'],
 			'issue_num' => $publication['issueNum'],
+			'my_issue_num' => $publication['myIssueNum'],
       'isbn13' => $publication['isbn13'],
       'date' => date('Y', $datestamp),
       'year' => date('Y', $datestamp),
