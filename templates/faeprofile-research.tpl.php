@@ -28,5 +28,10 @@
 				<li class="faeprofile-block-research-list-item"><?php echo $each_project ?></li>
 			<?php endforeach; ?>
 		</ul>
-	<?php endforeach; ?>	
+	<?php endforeach; ?>
+
+	<?php if(!empty($extra_grant_text)): ?>
+		<h4>Additional grant information</h4>
+		<?php echo $extra_grant_text ?>
+	<?php endif; ?>	
 <?php endif; ?>
