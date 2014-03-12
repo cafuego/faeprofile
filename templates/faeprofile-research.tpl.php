@@ -12,7 +12,7 @@
  */
 ?>
 
-<?php if(isset($year) && is_array($year)): ?>
+<?php if(isset($year) && is_array($year) && count($year) > 0): ?>
 	<h3>Grant information</h3>
 	<?php foreach($year as $each_year_key => $each_year): ?>
 		<?php 
