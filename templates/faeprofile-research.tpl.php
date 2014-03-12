@@ -13,6 +13,7 @@
 ?>
 
 <?php if(isset($year) && is_array($year)): ?>
+	<h3>Grant information</h3>
 	<?php foreach($year as $each_year_key => $each_year): ?>
 		<?php 
 			if(empty($each_year_key)) {
@@ -31,7 +32,7 @@
 	<?php endforeach; ?>
 
 	<?php if(!empty($extra_grant_text)): ?>
-		<h4>Additional grant information</h4>
+		<h3>Additional grant information</h3>
 		<?php echo $extra_grant_text ?>
 	<?php endif; ?>	
 <?php endif; ?>
