@@ -1276,10 +1276,15 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 	foreach($author_names['rows'] as $row) {
 
 		/*
-			If we get something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2,
-			Skip it. We need something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2Y
+			If we get something like:
+			- Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2
+			- Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2N
+			- We need something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2Y
 		*/
-		if( is_numeric(substr($row['pubPosi'], -1, 1)) ) {
+		if( !ctype_alpha(substr($row['pubPosi'], -1, 1)) ) {
+			continue;
+		}
+		elseif(substr($row['pubPosi'], -1, 1) !== 'Y') {
 			continue;
 		}
 
@@ -1294,7 +1299,7 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 			$person_name = _faeprofile_remove_title(strtolower($row['personLabel']));
 		}
 
-		$tmp_array[] = ucwords(strtolower($person_name));
+		$tmp_array[] = trim( ucwords(strtolower($person_name)) );
 	}
 
 	$return_string = '';
