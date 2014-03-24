@@ -1274,7 +1274,17 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 
 	$tmp_array = array();
 	foreach($author_names['rows'] as $row) {
-		$person_name = _faeprofile_remove_title(strtolower($row['personLabel']));		
+		if(empty($row['personLabel'])) {
+			// The personLabel is empty, that means no web link on find an expert website.
+			// Need to fall back to ?pubPosi -> rdfs:label
+			$pub_posi_uri = $row['pubPosi'];
+			$tmp_names = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL, array(':uri' => $pub_posi_uri));
+			$person_name = $tmp_names['rows'][0]['personLabel'];
+		} 
+		else {
+			$person_name = _faeprofile_remove_title(strtolower($row['personLabel']));
+		}
+
 		$tmp_array[] = ucwords($person_name);
 	}
 
