@@ -1274,6 +1274,15 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 
 	$tmp_array = array();
 	foreach($author_names['rows'] as $row) {
+
+		/*
+			If we get something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2,
+			Skip it. We need something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2Y
+		*/
+		if( is_numeric(substr($row['pubPosi'], -1, 1)) ) {
+			continue;
+		}
+
 		if(empty($row['personLabel'])) {
 			// The personLabel is empty, that means no web link on find an expert website.
 			// Need to fall back to ?pubPosi -> rdfs:label
@@ -1285,7 +1294,7 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 			$person_name = _faeprofile_remove_title(strtolower($row['personLabel']));
 		}
 
-		$tmp_array[] = ucwords($person_name);
+		$tmp_array[] = ucwords(strtolower($person_name));
 	}
 
 	$return_string = '';
