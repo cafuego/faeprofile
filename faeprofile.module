@@ -1494,6 +1494,7 @@ function _faeprofile_remove_title($text) {
 	$title_array = array(
 		'mr',
 		'mrs',
+		'ms',
 		'miss',
 		'prof',
 		'a\/prof', // escape
