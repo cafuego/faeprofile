@@ -110,6 +110,7 @@ function faeprofile_page_awards($account, $page = TRUE) {
 /**
  * Linkages page callback for Find an Expert profile information.
  */
+/*
 function faeprofile_page_linkages($account, $page = TRUE) {
   if (empty($account->field_fae_resource['und'][0]['url'])) {
     return $page ? drupal_not_found() : '';
@@ -120,6 +121,43 @@ function faeprofile_page_linkages($account, $page = TRUE) {
 
   return theme('faeprofile_linkages', array('data' => $linkages, 'uri' => $uri));
 }
+*/
+
+/**
+ * Linkages page callback for Find an Expert profile information.
+ */
+function faeprofile_page_linkages($account, $page = TRUE) {
+  if (empty($account->field_fae_resource['und'][0]['url'])) {
+    return $page ? drupal_not_found() : '';
+  }
+
+  $uri = $account->field_fae_resource['und'][0]['url'];
+  $tmp_linkages = uom_fae_api_person_linkages_no_org_label($uri);
+	foreach($tmp_linkages as $key => $tmp_linkage) {
+		$org_uri = $tmp_linkage['org'];
+		$res = uom_fae_api_person_linkages_org_label($org_uri);
+
+		if(count($res) > 1) {
+			// So it is not a single institution, so ignore it
+		} else {
+			$tmp_linkages[$key]['orgLabel'] = $res[0]['orgLabel']; 
+		}
+	}	
+
+	$linkages = array_filter($tmp_linkages, "faeprofile_page_linkages_no_org_label_callback");
+
+	return theme('faeprofile_linkages', array('data' => $linkages, 'uri' => $uri));
+}
+
+// Call back func used by array_filter
+function faeprofile_page_linkages_no_org_label_callback($var) {
+	if(!isset($var['orgLabel'])) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 
 /**
  * Supervision page callback for Find an Expert profile information.
