@@ -133,18 +133,24 @@ function faeprofile_page_linkages($account, $page = TRUE) {
 
   $uri = $account->field_fae_resource['und'][0]['url'];
   $tmp_linkages = uom_fae_api_person_linkages_no_org_label($uri);
-	foreach($tmp_linkages as $key => $tmp_linkage) {
-		$org_uri = $tmp_linkage['org'];
-		$res = uom_fae_api_person_linkages_org_label($org_uri);
 
-		if(count($res) > 1) {
-			// So it is not a single institution, so ignore it
-		} else {
-			$tmp_linkages[$key]['orgLabel'] = $res[0]['orgLabel']; 
+	if(!empty($tmp_linkages)) {
+		foreach($tmp_linkages as $key => $tmp_linkage) {
+			$org_uri = $tmp_linkage['org'];
+			$res = uom_fae_api_person_linkages_org_label($org_uri);
+
+			if(count($res) > 1) {
+				// So it is not a single institution, so ignore it
+			} else {
+				$tmp_linkages[$key]['orgLabel'] = $res[0]['orgLabel']; 
+			}
 		}
-	}	
 
-	$linkages = array_filter($tmp_linkages, "faeprofile_page_linkages_no_org_label_callback");
+		$linkages = array_filter($tmp_linkages, "faeprofile_page_linkages_no_org_label_callback");
+	}
+	else {
+		$linkages = array();
+	}
 
 	return theme('faeprofile_linkages', array('data' => $linkages, 'uri' => $uri));
 }
