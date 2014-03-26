@@ -767,8 +767,11 @@ function template_preprocess_faeprofile_publications(&$vars) {
 			'editor_text' => $editor_text,
     );
 
-		$vars['publications'][] =  $vars['year'][$temp['year']][] = _faeprofile_publication_select_theme($temp);
-		
+		//$vars['publications'][] =  $vars['year'][$temp['year']][] = _faeprofile_publication_select_theme($temp);
+
+		$year_index = $temp['year'];
+		$pub_type_index = $temp['type_text'];
+		$vars['year'][$year_index][$pub_type_index][] = _faeprofile_publication_select_theme($temp);
   }
   krsort($vars['year']);
 }
@@ -1548,5 +1551,62 @@ function _faeprofile_extra_grant($person_uri) {
 	$return_string = $part_1. $part_2. $part_3. $part_4;
 
   return $return_string;
+}
+
+function _get_put_type_order_list() {
+	return array(
+		'A1'  => t('Authored Research Book'),
+    'A2'  => t('Edited Book'),
+    'A3'  => t('Revision/New Edition'),
+    'A4'  => t('Translated Book'),
+    'A5'  => t('Text Book'),
+    'A6'  => t('Authored Book (Other)'),
+    'B1'  => t('Chapter in Research Book'),
+    'B2'  => t('Chapters in Books (Other)'),
+    'C1'  => t('Article in scholarly refereed journal'),
+    'C2'  => t('Article in unrefereed journal (including articles in professional journals)'),
+    'C3'  => t('Unrefereed Letter or Note'),
+    'C5'  => t('Other refereed contribution to a refereed journal'),
+    'D4'  => t('Major Reference work'),
+    'E1'  => t('Editorship (incl. Chief, Assoc. and other Editorial Roles)'),
+    'E2'  => t('Editorial Board Member'),
+    'E3'  => t('Guest Editor'),
+    'F1'  => t('Fully written refereed paper'),
+    'F2'  => t('Fully written unrefereed paper'),
+    'G4'  => t('Major Reports and Working Papers'),
+    'G5'  => t('Minor Reports and Working Papers'),
+    'H11' => t('Refereed Design Award'),
+    'H12' => t('Major curated individual exhibition of an original design'),
+    'I1'  => t('Patent'),
+    'Ji'  => t('Creative Published Works'),
+    'J6'  => t('Minor original creative published work'),
+    'J7'  => t('Minor original creative recorded work'),
+    'J8'  => t('Minor exhibition of original art or design'),
+    'J11' => t('Major original creative published work'),
+    'J12' => t('Major original creative recorded work'),
+    'J13' => t('Major curated individual exhibition of original art'),
+    'M5'  => t('Computer software'),
+    'N4'  => t('Audio-visual recording'),
+    'P1'  => t('Major performance'),
+    'P2'  => t('Minor performance'),
+    'R11' => t('Thesis passed for a higher degree'),
+    'R12' => t('Thesis in progress for a higher degree'),
+	);
+}
+
+function _my_pub_type_compare($a, $b) {
+if ($a == $b) {return 0;}
+  $order= _get_put_type_order_list();
+  $position = array_search($a,$order);
+  $position2 = array_search($b, $order);
+
+  //if both are in the $order, then sort according to their order in $order...
+  if ($position2!==false && $position!==false) {return ($position < $position2) ? -1 : 1;}
+  //if only one is in $order, then sort to put the one in $order first...
+  if($position!==false) {return -1;}
+  if($position2!==false) {return 1;}
+
+  //if neither in $order, then a simple alphabetic sort...
+  return ($a < $b) ? -1 : 1;
 }
 
