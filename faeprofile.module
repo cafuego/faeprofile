@@ -557,9 +557,9 @@ function theme_faeprofile_publication_default($vars) {
 	$tmp_array = array($part_edition, $page_start_end);
 	$combined_edition = implode(', ', array_filter($tmp_array));
 	$combined_edition = t(' @combined_edition', array('@combined_edition' => $combined_edition));
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 
-	$output = $part_head. $part_year. $combined_edition. $type_text;
+	$output = $part_head. $part_year. $combined_edition;
 
 	return $output;	
 }
@@ -578,9 +578,9 @@ function theme_faeprofile_publication_whole_book($vars) {
 	//$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
 	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
 	
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 
-	$output = $part_head. $part_year. $type_text; 
+	$output = $part_head. $part_year; 
 
 	return $output;
 }
@@ -625,9 +625,9 @@ function theme_faeprofile_publication_chapter($vars) {
   $combined_edition = implode(', ', array_filter($tmp_array));
   $combined_edition = t(', @combined_edition', array('@combined_edition' => $combined_edition));
 
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 
-  $output = $part_head. $part_year. $combined_edition. $type_text;
+  $output = $part_head. $part_year. $combined_edition;
 
   return $output;
 }
@@ -674,9 +674,9 @@ function theme_faeprofile_publication_journal($vars) {
     $page_start_end = '';
   }
 
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 	
-	$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end. $type_text;
+	$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end;
 
 	return $output;
 }
@@ -1400,47 +1400,12 @@ function _faeprofile_publication_type($uri) {
 }
 
 function _faeprofile_publication_select_theme($pub) {
-	/*
-		'A1'  => t('Authored Research Book'),
-    'A2'  => t('Edited Book'),
-    'A3'  => t('Revision/New Edition'),
-    'A4'  => t('Translated Book'),
-    'A5'  => t('Text Book'),
-    'A6'  => t('Authored Book (Other)'),
-    'B1'  => t('Chapter in Research Book'),
-    'B2'  => t('Chapters in Books (Other)'),
-    'C1'  => t('Article in scholarly refereed journal'),
-    'C2'  => t('Article in unrefereed journal (including articles in professional journals)'),
-    'C3'  => t('Unrefereed Letter or Note'),
-    'C5'  => t('Other refereed contribution to a refereed journal'),
-    'D4'  => t('Major Reference work'),
-    'E1'  => t('Editorship (incl. Chief, Assoc. and other Editorial Roles)'),
-    'E2'  => t('Editorial Board Member'),
-    'E3'  => t('Guest Editor'),
-    'F1'  => t('Fully written refereed paper'),
-    'F2'  => t('Fully written unrefereed paper'),
-    'G4'  => t('Major Reports and Working Papers'),
-    'G5'  => t('Minor Reports and Working Papers'),
-    'H11' => t('Refereed Design Award'),
-    'H12' => t('Major curated individual exhibition of an original design'),
-    'I1'  => t('Patent'),
-    'Ji'  => t('Creative Published Works'),
-    'J6'  => t('Minor original creative published work'),
-    'J7'  => t('Minor original creative recorded work'),
-    'J8'  => t('Minor exhibition of original art or design'),
-    'J11' => t('Major original creative published work'),
-    'J12' => t('Major original creative recorded work'),
-    'J13' => t('Major curated individual exhibition of original art'),
-    'M5'  => t('Computer software'),
-    'N4'  => t('Audio-visual recording'),
-    'P1'  => t('Major performance'),
-    'P2'  => t('Minor performance'),
-    'R11' => t('Thesis passed for a higher degree'),
-    'R12' => t('Thesis in progress for a higher degree'),
-	*/
+	// NOTE: if you want to see a complete pub type list.
+	// Go to
 
 	// You are doing the whole book
 	$whole_book_array = array(
+		'A',
 		'A1', // 'A1'  => t('Authored Research Book'),
     'A2', // 'A2'  => t('Edited Book'),
     'A3', // 'A3'  => t('Revision/New Edition'),
@@ -1451,12 +1416,14 @@ function _faeprofile_publication_select_theme($pub) {
 
 	// You are doing chapters only
 	$chapter_array = array(
+		'B',
 		'B1', // 'B1'  => t('Chapter in Research Book'),
     'B2', // 'B2'  => t('Chapters in Books (Other)'),
 	);
 
 	// Journal
   $journal_array = array(
+		'C',
     'C1', // 'C1'  => t('Article in scholarly refereed journal'),
     'C2', // 'C2'  => t('Article in unrefereed journal (including articles in professional journals)'),
 		'C3', // 'C3'  => t('Unrefereed Letter or Note'),
@@ -1553,50 +1520,9 @@ function _faeprofile_extra_grant($person_uri) {
   return $return_string;
 }
 
-function _get_put_type_order_list() {
-	return array(
-		'A1'  => t('Authored Research Book'),
-    'A2'  => t('Edited Book'),
-    'A3'  => t('Revision/New Edition'),
-    'A4'  => t('Translated Book'),
-    'A5'  => t('Text Book'),
-    'A6'  => t('Authored Book (Other)'),
-    'B1'  => t('Chapter in Research Book'),
-    'B2'  => t('Chapters in Books (Other)'),
-    'C1'  => t('Article in scholarly refereed journal'),
-    'C2'  => t('Article in unrefereed journal (including articles in professional journals)'),
-    'C3'  => t('Unrefereed Letter or Note'),
-    'C5'  => t('Other refereed contribution to a refereed journal'),
-    'D4'  => t('Major Reference work'),
-    'E1'  => t('Editorship (incl. Chief, Assoc. and other Editorial Roles)'),
-    'E2'  => t('Editorial Board Member'),
-    'E3'  => t('Guest Editor'),
-    'F1'  => t('Fully written refereed paper'),
-    'F2'  => t('Fully written unrefereed paper'),
-    'G4'  => t('Major Reports and Working Papers'),
-    'G5'  => t('Minor Reports and Working Papers'),
-    'H11' => t('Refereed Design Award'),
-    'H12' => t('Major curated individual exhibition of an original design'),
-    'I1'  => t('Patent'),
-    'Ji'  => t('Creative Published Works'),
-    'J6'  => t('Minor original creative published work'),
-    'J7'  => t('Minor original creative recorded work'),
-    'J8'  => t('Minor exhibition of original art or design'),
-    'J11' => t('Major original creative published work'),
-    'J12' => t('Major original creative recorded work'),
-    'J13' => t('Major curated individual exhibition of original art'),
-    'M5'  => t('Computer software'),
-    'N4'  => t('Audio-visual recording'),
-    'P1'  => t('Major performance'),
-    'P2'  => t('Minor performance'),
-    'R11' => t('Thesis passed for a higher degree'),
-    'R12' => t('Thesis in progress for a higher degree'),
-	);
-}
-
 function _my_pub_type_compare($a, $b) {
 if ($a == $b) {return 0;}
-  $order= _get_put_type_order_list();
+  $order= uom_fae_api_publication_types();
   $position = array_search($a,$order);
   $position2 = array_search($b, $order);
 
