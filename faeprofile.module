@@ -790,35 +790,39 @@ function template_preprocess_faeprofile_research(&$vars) {
   $vars['year'] = array();
 
   // Early return with empty vars if there are no items to process.
-  if (empty($research)) {
-    return;
-  }
+  if(!empty($research)) {
+  	foreach ($research as $grant) {
+		  $startstamp = strtotime($grant['dateStart']);
+		  $endstamp = strtotime($grant['dateEnd']);
 
-  foreach ($research as $grant) {
-    $startstamp = strtotime($grant['dateStart']);
-    $endstamp = strtotime($grant['dateEnd']);
+		  $vars['research'][] = array(
+		    'grant' => $grant['grantLabel'],
+		    'link' => $grant['grant'],
+		    'scheme' => $grant['grantScheme'],
+		    'role' => $grant['roleLabel'],
+		    'organisation' => $grant['orgLabel'],
+		    'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
+		    'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
+		  );
+		}
 
-    $vars['research'][] = array(
-      'grant' => $grant['grantLabel'],
-      'link' => $grant['grant'],
-      'scheme' => $grant['grantScheme'],
-      'role' => $grant['roleLabel'],
-      'organisation' => $grant['orgLabel'],
-      'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
-      'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
-    );
-  }
+		$extra_grant_text = _faeprofile_extra_grant($uri);
+		$vars['extra_grant_text'] = $extra_grant_text;
 
-	$extra_grant_text = _faeprofile_extra_grant($uri);
-	$vars['extra_grant_text'] = $extra_grant_text;
-
-  // Do some grouping of research grants.
-  foreach ($vars['research'] as $grant) {
-    $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
-  }
+		// Do some grouping of research grants.
+		foreach ($vars['research'] as $grant) {
+		  $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
+		}
 	
-  krsort($vars['schemes']);
-  krsort($vars['year']);
+		krsort($vars['schemes']);
+		krsort($vars['year']);
+	} 
+	elseif($extra_grant_text = _faeprofile_extra_grant($uri)){
+		$vars['extra_grant_text'] = $extra_grant_text;			
+	}
+	else {
+		return;
+  }
 }
 
 /**

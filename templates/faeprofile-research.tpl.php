@@ -30,9 +30,9 @@
 			<?php endforeach; ?>
 		</ul>
 	<?php endforeach; ?>
+<?php endif; ?>
 
-	<?php if(!empty($extra_grant_text)): ?>
-		<h3>Additional grant information</h3>
-		<?php echo $extra_grant_text ?>
-	<?php endif; ?>	
+<?php if(!empty($extra_grant_text)): ?>
+	<h3>Additional grant information</h3>
+  <?php echo $extra_grant_text ?>
 <?php endif; ?>
