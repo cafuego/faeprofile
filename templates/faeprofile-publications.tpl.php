@@ -11,7 +11,6 @@
 ?>
 
 <?php if($year): ?>
-  <h3>Selected publications</h3>
 	<?php foreach($year as $year_label => $pub_types): ?>  
 		<h4><?php print $year_label; ?></h4>
 
