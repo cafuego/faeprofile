@@ -1304,10 +1304,10 @@ function _faeprofile_author_text($article_uri, $target_person_name) {
 			$person_name = $tmp_names['rows'][0]['personLabel'];
 		} 
 		else {
-			$person_name = _faeprofile_remove_title(strtolower($row['personLabel']));
+			$person_name = _faeprofile_remove_title($row['personLabel']);
 		}
 
-		$tmp_array[] = trim( ucwords(strtolower($person_name)) );
+		$tmp_array[] = trim($person_name);
 	}
 
 	$return_string = '';
@@ -1340,8 +1340,8 @@ function _faeprofile_editor_text($article_uri) {
     	break;
 		}
 		else {
-			$person_name = _faeprofile_remove_title(strtolower($editor_name));
-			$editor_names[] = ucwords($person_name);;
+			$person_name = _faeprofile_remove_title($editor_name);
+			$editor_names[] = trim($person_name);
 		}
 
 		++$i;
@@ -1477,8 +1477,8 @@ function _faeprofile_remove_title($text) {
 	);
 
 	foreach($title_array as $element) {
-		$pattern_check = '/^'. $element. '/';
-		$pattern_replace = '/'. $element. '/';
+		$pattern_check = '/^'. $element. '/i';
+		$pattern_replace = '/'. $element. '/i';
 		if(preg_match($pattern_check, $text)) {
 			$output = preg_replace($pattern_replace, '', $text, 1);
 			break;
