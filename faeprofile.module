@@ -528,11 +528,10 @@ function theme_faeprofile_publication_default($vars) {
 		'@editor_text' => !empty($vars['publication']['editor_text']) ? $vars['publication']['editor_text']. '.' : '',
 		'!link' => $vars['publication']['link'],
 		'@parent' => !empty($vars['publication']['parent']) ? strip_tags($vars['publication']['parent']). '.' : '',
-		'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher']. ',' : '',
+		'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher'] : '',
 	));
 
-	//$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
-	$part_year = t(' @year,', array('@year' => $vars['publication']['year']));
+	$part_year = t(', @year', array('@year' => $vars['publication']['year']));
 
 	// Volume or edition
 	if (!empty($vars['publication']['volume'])) {
@@ -556,8 +555,13 @@ function theme_faeprofile_publication_default($vars) {
 	// Combine volume/edition with page
 	$tmp_array = array($part_edition, $page_start_end);
 	$combined_edition = implode(', ', array_filter($tmp_array));
-	$combined_edition = t(' @combined_edition', array('@combined_edition' => $combined_edition));
-	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+
+	if(!empty($combined_edition)) {
+		$combined_edition = t(', @combined_edition', array('@combined_edition' => $combined_edition));
+	}
+	else {
+		$combined_edition = '';
+	}
 
 	$output = $part_head. $part_year. $combined_edition;
 
@@ -742,7 +746,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
   foreach ($publications as $publication) {
     $datestamp = strtotime($publication['dateValue']);
 
-		$author_text = _faeprofile_author_text($publication['article'], $publication['targetPersonName']);
+		$author_text = _faeprofile_author_text($publication['article']);
 		$editor_text = _faeprofile_editor_text($publication['article']);
 		$page_start_end_text = _faeprofile_page_start_end($publication['article']);
 		$type_array = _faeprofile_publication_type($publication['type']);
@@ -1274,7 +1278,7 @@ function _faeprofile_update_supervisor_status($account) {
   return 1;
 }
 
-function _faeprofile_author_text($article_uri, $target_person_name) {
+function _faeprofile_author_text($article_uri) {
   $args = array(
   	':uri' => $article_uri,
   );
