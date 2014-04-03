@@ -1308,7 +1308,18 @@ function _faeprofile_author_text($article_uri) {
 			$person_name = $tmp_names['rows'][0]['personLabel'];
 		} 
 		else {
-			$person_name = _faeprofile_remove_title($row['personLabel']);
+			if(!empty($row['personLink'])) {
+				$tmp_person_name = _faeprofile_find_person_name_in_drupal($row['personLink']);
+				if(!empty($tmp_person_name)) {
+					$person_name = $tmp_person_name;	
+				}
+				else {
+					$person_name = _faeprofile_remove_title($row['personLabel']);	
+				}
+			}
+			else {
+				$person_name = _faeprofile_remove_title($row['personLabel']);
+			}	
 		}
 
 		$tmp_array[] = trim($person_name);
@@ -1545,3 +1556,25 @@ if ($a == $b) {return 0;}
   return ($a < $b) ? -1 : 1;
 }
 
+
+function _faeprofile_find_person_name_in_drupal($person_link = '') {
+	
+	$person_name = '';
+	
+	$query = db_select('field_data_field_fae_resource', 'res');
+	$query->join('field_data_field_profile_display_name', 'dname', 'res.entity_id = dname.entity_id');
+	$query->condition('res.entity_type', 'user', '=');
+	$query->condition('res.field_fae_resource_url', $person_link, '=');
+	
+  $result = $query->fields('dname', array('field_profile_display_name_value'))
+    ->execute()
+    ->fetchAssoc(); // Assume only 1 match
+ 
+ 	if(isset($result['field_profile_display_name_value']) && !empty($result['field_profile_display_name_value'])) {
+  	$person_name = $result['field_profile_display_name_value'];
+  }
+  else {
+  	$person_name = '';
+  }
+  return $person_name;
+}
