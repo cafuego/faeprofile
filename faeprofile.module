@@ -1558,18 +1558,21 @@ if ($a == $b) {return 0;}
 
 
 function _faeprofile_find_person_name_in_drupal($person_link = '') {
+	// field_fae_resource_url is http://www.findanexpert.unimelb.edu.au/individual/person13547
+	// or www.findanexpert.unimelb.edu.au/individual/person13547
+	$person_link = preg_replace("(https?://)", "", $person_link);
 	
 	$person_name = '';
 	
 	$query = db_select('field_data_field_fae_resource', 'res');
 	$query->join('field_data_field_profile_display_name', 'dname', 'res.entity_id = dname.entity_id');
 	$query->condition('res.entity_type', 'user', '=');
-	$query->condition('res.field_fae_resource_url', $person_link, '=');
-	
+	$query->condition('res.field_fae_resource_url', $person_link. '$', 'REGEXP');
+
   $result = $query->fields('dname', array('field_profile_display_name_value'))
     ->execute()
     ->fetchAssoc(); // Assume only 1 match
- 
+
  	if(isset($result['field_profile_display_name_value']) && !empty($result['field_profile_display_name_value'])) {
   	$person_name = $result['field_profile_display_name_value'];
   }
