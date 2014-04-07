@@ -1283,19 +1283,13 @@ function _faeprofile_author_text($article_uri) {
   $args = array(
   	':uri' => $article_uri,
   );
-  $author_names = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_LINKS, $args);
+  $pub_posis = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_PUB_POSIS, $args);
 
 	//test
-	$test_pub_uri = 'http://www.findanexpert.unimelb.edu.au/individual/publication33067';
-
-	/*
-	if($article_uri == $test_pub_uri) {
-		dsm($author_names);
-	}
-	*/
+	//$test_pub_uri = 'http://www.findanexpert.unimelb.edu.au/individual/publication149224';
 
 	$tmp_array = array();
-  foreach($author_names['rows'] as $row) {
+  foreach($pub_posis['rows'] as $row) {
 		// If we get something like:
     // - Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2
     // - Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2N
@@ -1307,14 +1301,18 @@ function _faeprofile_author_text($article_uri) {
       continue;
     }
 
-		if(!empty($row['personLink'])) {
-			$tmp_person_name = _faeprofile_find_person_name_in_drupal($row['personLink']);
+		$tmp_person_link = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_PERSON_LINK, array(':uri' => $row['pubPosi']));
+		// Sometimes a pubPosi won't have a person link, due to someone forgets to put a link there.
+		$person_link = $tmp_person_link['rows'][0]['personLink'];
+
+		if(!empty($person_link)) {
+			$tmp_person_name = _faeprofile_find_person_name_in_drupal($person_link);
 		  if(!empty($tmp_person_name)) {
 		  	$person_name = $tmp_person_name;  
 		  }
 		  else {
-				$tmp_person_label = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL, array(':uri' => $row['personLink']));
-		  	$person_name = _faeprofile_remove_title($tmp_person_label['rows'][0]['personLabel']); 
+				$tmp_person_label = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL, array(':uri' => $person_link));
+		  	$person_name = _faeprofile_remove_title($tmp_person_label['rows'][0]['personLabel']);
 		  }
 		}
 		else {
