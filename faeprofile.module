@@ -748,6 +748,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
 
 		$author_text = _faeprofile_author_text($publication['article']);
 		$editor_text = _faeprofile_editor_text($publication['article']);
+
 		$page_start_end_text = _faeprofile_page_start_end($publication['article']);
 		$type_array = _faeprofile_publication_type($publication['type']);
 
@@ -1282,56 +1283,57 @@ function _faeprofile_author_text($article_uri) {
   $args = array(
   	':uri' => $article_uri,
   );
-  $author_names = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAMES, $args);
+  $author_names = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_LINKS, $args);
+
+	//test
+	$test_pub_uri = 'http://www.findanexpert.unimelb.edu.au/individual/publication33067';
+
+	/*
+	if($article_uri == $test_pub_uri) {
+		dsm($author_names);
+	}
+	*/
 
 	$tmp_array = array();
-	foreach($author_names['rows'] as $row) {
+  foreach($author_names['rows'] as $row) {
+		// If we get something like:
+    // - Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2
+    // - Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2N
+    // - We need something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2Y
+    if( !ctype_alpha(substr($row['pubPosi'], -1, 1)) ) {
+      continue;
+    }
+    elseif(substr($row['pubPosi'], -1, 1) !== 'Y') {
+      continue;
+    }
 
-		/*
-			If we get something like:
-			- Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2
-			- Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2N
-			- We need something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2Y
-		*/
-		if( !ctype_alpha(substr($row['pubPosi'], -1, 1)) ) {
-			continue;
+		if(!empty($row['personLink'])) {
+			$tmp_person_name = _faeprofile_find_person_name_in_drupal($row['personLink']);
+		  if(!empty($tmp_person_name)) {
+		  	$person_name = $tmp_person_name;  
+		  }
+		  else {
+				$tmp_person_label = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL, array(':uri' => $row['personLink']));
+		  	$person_name = _faeprofile_remove_title($tmp_person_label['rows'][0]['personLabel']); 
+		  }
 		}
-		elseif(substr($row['pubPosi'], -1, 1) !== 'Y') {
-			continue;
-		}
-
-		if(empty($row['personLabel'])) {
-			// The personLabel is empty, that means no web link on find an expert website.
-			// Need to fall back to ?pubPosi -> rdfs:label
-			$pub_posi_uri = $row['pubPosi'];
-			$tmp_names = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL, array(':uri' => $pub_posi_uri));
-			$person_name = $tmp_names['rows'][0]['personLabel'];
-		} 
 		else {
-			if(!empty($row['personLink'])) {
-				$tmp_person_name = _faeprofile_find_person_name_in_drupal($row['personLink']);
-				if(!empty($tmp_person_name)) {
-					$person_name = $tmp_person_name;	
-				}
-				else {
-					$person_name = _faeprofile_remove_title($row['personLabel']);	
-				}
-			}
-			else {
-				$person_name = _faeprofile_remove_title($row['personLabel']);
-			}	
-		}
+			// No person link, but we can use pubPosi to retrieve personLabel.
+			// It will take a while, but why?
+			$tmp_person_label = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL_1, array(':uri' => $row['pubPosi']));
+			$person_name = _faeprofile_remove_title($tmp_person_label['rows'][0]['personLabel']);
+		}		
 
-		$tmp_array[] = trim($person_name);
+		$tmp_array[] = trim($person_name);	
 	}
 
 	$return_string = '';
-	if(count($tmp_array) > 0) {
-		$return_string = implode(', ', $tmp_array);
-	} else {
+  if(count($tmp_array) > 0) {
+    $return_string = implode(', ', $tmp_array);
+  } else {
 
-	}
-	
+  }
+
 	return $return_string;
 }
 
