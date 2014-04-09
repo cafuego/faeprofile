@@ -732,6 +732,8 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
  * Preprocess functions for faeprofile publications.
  */
 function template_preprocess_faeprofile_publications(&$vars) {
+	$data = '';
+
   $uri = $vars['uri'];
   $publications = $vars['data'];
 
@@ -743,43 +745,58 @@ function template_preprocess_faeprofile_publications(&$vars) {
     return;
   }
 
-  foreach ($publications as $publication) {
-    $datestamp = strtotime($publication['dateValue']);
 
-		$author_text = _faeprofile_author_text($publication['article']);
-		$editor_text = _faeprofile_editor_text($publication['article']);
-
-		$page_start_end_text = _faeprofile_page_start_end($publication['article']);
-		$type_array = _faeprofile_publication_type($publication['type']);
-
-    $temp = array(
-      'publication' => $publication['publication'], // e.g. published in Journal of Sport History (i.e. journal) 
-      'title' => $publication['title'],
-      'link' => $publication['article'],
-			'type_code' => $type_array['type_code'],
-			'type_text' => $type_array['type_text'],
-      'publisher' => $publication['publishOrg'],
-			'page_start_end' => $page_start_end_text,
-      'edition' => $publication['edition'],
-			'parent' => $publication['parent'],
-      'volume' => $publication['volume'],
-			'issue_num' => $publication['issueNum'],
-			'my_issue_num' => $publication['myIssueNum'],
-      'isbn13' => $publication['isbn13'],
-      'date' => date('Y', $datestamp),
-      'year' => date('Y', $datestamp),
-			'author_text' => $author_text,
-			'editor_text' => $editor_text,
-    );
-
-		//$vars['publications'][] =  $vars['year'][$temp['year']][] = _faeprofile_publication_select_theme($temp);
-
-		$year_index = $temp['year'];
-		$pub_type_index = $temp['type_text'];
-		$link_index = $temp['link'];
-		$vars['year'][$year_index][$pub_type_index][$link_index] = _faeprofile_publication_select_theme($temp);
+	$cache_id = 'faeprofile:'. md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['year'] = $data;
   }
-  krsort($vars['year']);
+
+	if(empty($data)) {
+		foreach ($publications as $publication) {
+		  $datestamp = strtotime($publication['dateValue']);
+
+			$author_text = _faeprofile_author_text($publication['article']);
+			$editor_text = _faeprofile_editor_text($publication['article']);
+
+			$page_start_end_text = _faeprofile_page_start_end($publication['article']);
+			$type_array = _faeprofile_publication_type($publication['type']);
+
+		  $temp = array(
+		    'publication' => $publication['publication'], // e.g. published in Journal of Sport History (i.e. journal) 
+		    'title' => $publication['title'],
+		    'link' => $publication['article'],
+				'type_code' => $type_array['type_code'],
+				'type_text' => $type_array['type_text'],
+		    'publisher' => $publication['publishOrg'],
+				'page_start_end' => $page_start_end_text,
+		    'edition' => $publication['edition'],
+				'parent' => $publication['parent'],
+		    'volume' => $publication['volume'],
+				'issue_num' => $publication['issueNum'],
+				'my_issue_num' => $publication['myIssueNum'],
+		    'isbn13' => $publication['isbn13'],
+		    'date' => date('Y', $datestamp),
+		    'year' => date('Y', $datestamp),
+				'author_text' => $author_text,
+				'editor_text' => $editor_text,
+		  );
+
+			//$vars['publications'][] =  $vars['year'][$temp['year']][] = _faeprofile_publication_select_theme($temp);
+
+			$year_index = $temp['year'];
+			$pub_type_index = $temp['type_text'];
+			$link_index = $temp['link'];
+			$vars['year'][$year_index][$pub_type_index][$link_index] = _faeprofile_publication_select_theme($temp);
+		}
+		krsort($vars['year']);
+
+		// Cache for 1 days
+		$data = $vars['year'];
+    cache_set($cache_id, $data, 'cache', time() + 24*60*60);
+	}
+
+  
 }
 
 /**
