@@ -745,8 +745,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
     return;
   }
 
-
-	$cache_id = 'faeprofile:'. md5($uri);
+	$cache_id = "faeprofile:pub:$uri:". md5($uri);
   if($cached = cache_get($cache_id, 'cache'))  {
     $data = $cached->data;
     $vars['year'] = $data;
