@@ -689,22 +689,74 @@ function theme_faeprofile_publication_journal($vars) {
  * Preprocess functions for faeprofile information.
  */
 function template_preprocess_faeprofile_information(&$vars) {
-  $information = $vars['data'];
-  $vars['information'] = $information[0]['safe_value'];
+  $data = '';
+  $uri = $vars['uri'];
+  $vars['information'] = '';
+  
+  $cache_id = "faeprofile:info:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['information'] = $data;
+  }
+  
+  if(empty($data)) {
+  	if(uom_fae_api_is_url_reachable()) {
+  		$information = $vars['data'];
+  		if(!empty($information)) {
+  			$vars['information'] = $information[0]['safe_value'];
+  			
+  			// Cache and backup
+				$data = $vars['information'];
+				uom_fae_api_cache_and_backup($cache_id, $data);
+  		}
+  	}
+  	else {
+  		// Joseki is down, so get the backup data
+			$vars['information'] = uom_fae_api_custom_cache_get($cache_id);
+  	}
+  }
+  else {
+  	// $data is above. Nothing to do here.
+  }
+  
 }
 
 /**
  * Preprocess functions for faeprofile overview.
  */
 function template_preprocess_faeprofile_overview(&$vars) {
-  $overview = $vars['data'];
+  $data = '';
+  $uri = $vars['uri'];
   $vars['overview'] = '';
-
-  if (empty($overview) || $overview == 'Empty') {
-    return;
+  
+  $cache_id = "faeprofile:overview:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['overview'] = $data;
   }
-
-  $vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
+  
+  if(empty($data)) {
+  	if(uom_fae_api_is_url_reachable()) {
+			$overview = $vars['data'];
+			if(empty($overview) || $overview == 'Empty') {
+			
+			}
+			else {
+				$vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
+			
+				// Cache and backup
+				$data = $vars['overview'];
+				uom_fae_api_cache_and_backup($cache_id, $data);
+			}
+  	}
+  	else {
+  		// Joseki is down, so get the backup data
+			$vars['overview'] = uom_fae_api_custom_cache_get($cache_id);
+  	}
+  }
+  else {
+  	// $data is above. Nothing to do here.
+  }
 }
 
 /**
@@ -712,7 +764,6 @@ function template_preprocess_faeprofile_overview(&$vars) {
  */
 function template_preprocess_faeprofile_affiliations(&$vars) {
   $data = '';
-  
   $uri = $vars['uri'];
   $vars['affiliations'] = array();
   
@@ -726,27 +777,26 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
   	if(uom_fae_api_is_url_reachable()) {
   		// We already run sparql and data is within $vars
   		// We don't run sparql here within this if statement, 
-  		// so uom_fae_api_is_url_reachable is not necessary
-  		$affiliations = $vars['data'];
-  		
-  		foreach ($affiliations as $affiliation) {
-				$temp = array(
-				  'organisation' => check_plain($affiliation['orgLabel']),
-				  'role' => check_plain($affiliation['roleLabel']),
-				);
-				$vars['affiliations'][] = theme('faeprofile_affiliation', array('affiliation' => $temp));
+  		// so uom_fae_api_is_url_reachable is not necessary, but just put it here.
+			$affiliations = $vars['data'];
+			
+			if(!empty($affiliations)) {
+				foreach ($affiliations as $affiliation) {
+					$temp = array(
+						'organisation' => check_plain($affiliation['orgLabel']),
+						'role' => check_plain($affiliation['roleLabel']),
+					);
+					$vars['affiliations'][] = theme('faeprofile_affiliation', array('affiliation' => $temp));
+				}
+			
+				// Cache the data
+				$data = $vars['affiliations'];
+				uom_fae_api_cache_and_backup($cache_id, $data);
 			}
-			
-			// Cache the data
-			$data = $vars['affiliations'];
-			cache_set($cache_id, $data, 'cache', time() + FAE_MODULE_CACHE_TIME);
-			
-			// Update the backup data
-			_fae_custom_cache_set($cache_id, $data);
   	}
  		else {
  			// Joseki is down, so get the backup data
-			$vars['affiliations'] = _fae_custom_cache_get($cache_id);
+			$vars['affiliations'] = uom_fae_api_custom_cache_get($cache_id);
  		}
   }
   else {
@@ -760,7 +810,6 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
  */
 function template_preprocess_faeprofile_publications(&$vars) {
 	$data = '';
-
   $uri = $vars['uri'];
   $vars['year'] = array();
 
@@ -774,51 +823,51 @@ function template_preprocess_faeprofile_publications(&$vars) {
 		if(uom_fae_api_is_url_reachable()) {
 			$publications = $vars['data'];
 		
-			foreach ($publications as $publication) {
-				$datestamp = strtotime($publication['dateValue']);
+			if(!empty($publications)) {
+				foreach ($publications as $publication) {
+					$datestamp = strtotime($publication['dateValue']);
 
-				$author_text = _faeprofile_author_text($publication['article']);
-				$editor_text = _faeprofile_editor_text($publication['article']);
+					$author_text = _faeprofile_author_text($publication['article']);
+					$editor_text = _faeprofile_editor_text($publication['article']);
 
-				$page_start_end_text = _faeprofile_page_start_end($publication['article']);
-				$type_array = _faeprofile_publication_type($publication['type']);
+					$page_start_end_text = _faeprofile_page_start_end($publication['article']);
+					$type_array = _faeprofile_publication_type($publication['type']);
 
-				$temp = array(
-				  'publication' => $publication['publication'], // e.g. published in Journal of Sport History (i.e. journal) 
-				  'title' => $publication['title'],
-				  'link' => $publication['article'],
-					'type_code' => $type_array['type_code'],
-					'type_text' => $type_array['type_text'],
-				  'publisher' => $publication['publishOrg'],
-					'page_start_end' => $page_start_end_text,
-				  'edition' => $publication['edition'],
-					'parent' => $publication['parent'],
-				  'volume' => $publication['volume'],
-					'issue_num' => $publication['issueNum'],
-					'my_issue_num' => $publication['myIssueNum'],
-				  'isbn13' => $publication['isbn13'],
-				  'date' => date('Y', $datestamp),
-				  'year' => date('Y', $datestamp),
-					'author_text' => $author_text,
-					'editor_text' => $editor_text,
-				);
+					$temp = array(
+						'publication' => $publication['publication'], // e.g. published in Journal of Sport History (i.e. journal) 
+						'title' => $publication['title'],
+						'link' => $publication['article'],
+						'type_code' => $type_array['type_code'],
+						'type_text' => $type_array['type_text'],
+						'publisher' => $publication['publishOrg'],
+						'page_start_end' => $page_start_end_text,
+						'edition' => $publication['edition'],
+						'parent' => $publication['parent'],
+						'volume' => $publication['volume'],
+						'issue_num' => $publication['issueNum'],
+						'my_issue_num' => $publication['myIssueNum'],
+						'isbn13' => $publication['isbn13'],
+						'date' => date('Y', $datestamp),
+						'year' => date('Y', $datestamp),
+						'author_text' => $author_text,
+						'editor_text' => $editor_text,
+					);
 
-				$year_index = $temp['year'];
-				$pub_type_index = $temp['type_text'];
-				$link_index = $temp['link'];
-				$vars['year'][$year_index][$pub_type_index][$link_index] = _faeprofile_publication_select_theme($temp);
-			}
-			krsort($vars['year']);
+					$year_index = $temp['year'];
+					$pub_type_index = $temp['type_text'];
+					$link_index = $temp['link'];
+					$vars['year'][$year_index][$pub_type_index][$link_index] = _faeprofile_publication_select_theme($temp);
+				}
+				krsort($vars['year']);
 
-			$data = $vars['year'];
-		  cache_set($cache_id, $data, 'cache', time() + FAE_MODULE_CACHE_TIME);
-		  
-		  // Update the backup data
-		  _fae_custom_cache_set($cache_id, $data);
+				// Cache and backup
+				$data = $vars['year'];
+				uom_fae_api_cache_and_backup($cache_id, $data);
+		  }
 		}
 		else {
 			// Joseki is down, so get the backup data
-			$vars['year'] = _fae_custom_cache_get($cache_id);
+			$vars['year'] = uom_fae_api_custom_cache_get($cache_id);
 		}
 	}
 }
@@ -827,107 +876,157 @@ function template_preprocess_faeprofile_publications(&$vars) {
  * Preprocess functions for faeprofile research.
  */
 function template_preprocess_faeprofile_research(&$vars) {
+  $data = '';
   $uri = $vars['uri'];
-  $research = $vars['data'];
-
-  // $vars['research'] = array();
-  $vars['grants'] = array();
-  $vars['schemes'] = array();
   $vars['year'] = array();
+  $vars['extra_grant_text'] = array();
+  
+  $cache_id = "faeprofile:research:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['year'] = $data['year'];
+    $vars['extra_grant_text'] = $data['extra_grant_text'];
+  }
+  
+  if(empty($data)) {
+  	if(uom_fae_api_is_url_reachable()) {
+  		// Grant
+  		// $vars doesn't contain extra_grant_text
+  		$research = $vars['data'];
+			if(!empty($research)) {
+				foreach ($research as $grant) {
+					$startstamp = strtotime($grant['dateStart']);
+					$endstamp = strtotime($grant['dateEnd']);
 
-  // Early return with empty vars if there are no items to process.
-  if(!empty($research)) {
-  	foreach ($research as $grant) {
-		  $startstamp = strtotime($grant['dateStart']);
-		  $endstamp = strtotime($grant['dateEnd']);
-
-		  $vars['research'][] = array(
-		    'grant' => $grant['grantLabel'],
-		    'link' => $grant['grant'],
-		    'scheme' => $grant['grantScheme'],
-		    'role' => $grant['roleLabel'],
-		    'organisation' => $grant['orgLabel'],
-		    'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
-		    'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
-		  );
-		}
-
-		$extra_grant_text = _faeprofile_extra_grant($uri);
-		$vars['extra_grant_text'] = $extra_grant_text;
-
-		// Do some grouping of research grants.
-		foreach ($vars['research'] as $grant) {
-		  $vars['research'][] = $vars['schemes'][$grant['scheme']][] = $vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
-		}
+					$vars['research'][] = array(
+						'grant' => $grant['grantLabel'],
+						'link' => $grant['grant'],
+						'scheme' => $grant['grantScheme'],
+						'role' => $grant['roleLabel'],
+						'organisation' => $grant['orgLabel'],
+						'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
+						'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
+					);
+				}
+				
+				// Do some grouping of research grants.
+				foreach ($vars['research'] as $grant) {
+		  		$vars['year'][$grant['start']][] = theme('faeprofile_grant', array('grant' => $grant));
+				}
 	
-		krsort($vars['schemes']);
-		krsort($vars['year']);
-	} 
-	elseif($extra_grant_text = _faeprofile_extra_grant($uri)){
-		$vars['extra_grant_text'] = $extra_grant_text;			
-	}
-	else {
-		return;
+				krsort($vars['year']);
+			}
+			
+			// Extra grant
+			$extra_grant_text = _faeprofile_extra_grant($uri);
+			if(!empty($extra_grant_text)) {
+				$vars['extra_grant_text'] = $extra_grant_text;
+			}
+			
+			// Cache and backup
+			$data = $vars;
+			uom_fae_api_cache_and_backup($cache_id, $data);
+  	}
+  	else {
+  		// Joseki is down, so get the backup data
+			$tmp_vars = uom_fae_api_custom_cache_get($cache_id);
+			$vars['year'] = $tmp_vars['year'];
+    	$vars['extra_grant_text'] = $tmp_vars['extra_grant_text'];
+  	}
   }
 }
+
 
 /**
  * Preprocess functions for faeprofile awards.
  */
 function template_preprocess_faeprofile_awards(&$vars) {
-  $awards = $vars['data'];
-
-  $vars['awards'] = array();
-  $vars['year'] = array();
-	$tmp_array = array();
-
-  // Early return with empty vars if there are no items to process.
-  if (empty($awards)) {
-    return;
+	$data = '';
+	$uri = $vars['uri'];
+	$vars['awards'] = array();
+	
+	$cache_id = "faeprofile:award:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['awards'] = $data;
   }
+	
+	if(empty($data)) {
+		if(uom_fae_api_is_url_reachable()) {
+			$awards = $vars['data'];
+			
+			if(!empty($awards)) {
+				foreach ($awards as $award) {
+    			$timestamp = strtotime($award['dateValue']);
 
-  foreach ($awards as $award) {
-    $timestamp = strtotime($award['dateValue']);
+					$temp = array(
+						'award' => $award['awardLabel'],
+						'link' => $award['award'],
+						'organisation' => $award['orgLabel'],
+						'year' => (!empty($timestamp)) ? date('Y', $timestamp) : '',
+					);
+					$tmp_array[] = $temp;
+				}
 
-    $temp = array(
-      'award' => $award['awardLabel'],
-      'link' => $award['award'],
-      'organisation' => $award['orgLabel'],
-      'year' => (!empty($timestamp)) ? date('Y', $timestamp) : '',
-    );
-		$tmp_array[] = $temp;
-		// Disable
-    //$vars['awards'][] = $vars['year'][$temp['year']][] = theme('faeprofile_award', array('award' => $temp));
-  }
+				// Sort by year desc
+				usort($tmp_array, function($a, $b) {
+					return $b['year'] - $a['year'];
+				});	
 
-	// Disable 
-  //krsort($vars['year']);
-
-	// Sort by year desc
-  usort($tmp_array, function($a, $b) {
-    return $b['year'] - $a['year'];
-  });	
-
-	//
-	foreach($tmp_array as $element) {
-		$vars['awards'][] = theme('faeprofile_award', array('award' => $element));
+				//
+				foreach($tmp_array as $element) {
+					$vars['awards'][] = theme('faeprofile_award', array('award' => $element));
+				}
+				
+				// Cache and backup
+				$data = $vars['awards'];
+				uom_fae_api_cache_and_backup($cache_id, $data);	
+			}
+		}
+		else {
+			// Joseki is down, so get the backup data
+			$vars['awards'] = uom_fae_api_custom_cache_get($cache_id);
+		}
 	}
+	else {
+		// Nothing
+	}	
 }
 
 /**
  * Preprocess functions for faeprofile linkages.
  */
 function template_preprocess_faeprofile_linkages(&$vars) {
-  $linkages = $vars['data'];
+  $data = '';
+  $uri = $vars['uri'];
   $vars['linkages'] = array();
-
-  // Early return with empty vars if there are no items to process.
-  if (empty($linkages)) {
-    return;
+  
+  $cache_id = "faeprofile:linkage:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['linkage'] = $data;
   }
-
-  foreach ($linkages as $linkage) {
-    $vars['linkages'][] = theme('faeprofile_linkage', array('linkage' => $linkage));
+  
+  if(empty($data)) {
+  	if(uom_fae_api_is_url_reachable()) {
+			$linkages = $vars['data'];
+			if(!empty($linkages)) {
+				foreach ($linkages as $linkage) {
+					$vars['linkages'][] = theme('faeprofile_linkage', array('linkage' => $linkage));
+				}
+				
+				// Cache and backup
+				$data = $vars['linkages'];
+				uom_fae_api_cache_and_backup($cache_id, $data);	
+			}
+		}
+		else {
+			// Joseki is down, so get the backup data
+			$vars['linkages'] = uom_fae_api_custom_cache_get($cache_id);
+		}	
+  }
+  else {
+  	// Nothing
   }
 }
 
@@ -935,9 +1034,47 @@ function template_preprocess_faeprofile_linkages(&$vars) {
  * Preprocess functions for faeprofile supervision.
  */
 function template_preprocess_faeprofile_supervision(&$vars) {
+	/*
   $supervision = $vars['data'];
   $vars['available'] = theme('faeprofile_supervisor', array('available' => $supervision['supervisor']));
   $vars['overview'] = $supervision['supervisorText1'];
+  */
+  
+  $data = '';
+  $uri = $vars['uri'];
+  $vars['available'] = array();
+  $vars['overview'] = array();
+  
+  $cache_id = "faeprofile:supervision:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['available'] = $data['supervisor'];
+    $vars['overview'] = $data['supervisorText1'];
+  }
+  
+  if(empty($data)) {
+  	if(uom_fae_api_is_url_reachable()) {
+  		$supervision = $vars['data'];
+  		if(!empty($supervision)) {
+  			$vars['available'] = theme('faeprofile_supervisor', array('available' => $supervision['supervisor']));
+  			$vars['overview'] = $supervision['supervisorText1'];
+  			
+  			// Cache and backup
+				$data = $vars;
+				uom_fae_api_cache_and_backup($cache_id, $data);
+  		}
+  	}
+  	else {
+  		// Joseki is down, so get the backup data
+  		$tmp_vars = uom_fae_api_custom_cache_get($cache_id);
+  		$vars['available'] = $tmp_vars['available'];
+  		$vars['overview'] = $tmp_vars['overview'];
+  	}
+  }
+  else {
+  	// Nothing
+  }
+  
 }
 
 /**
@@ -967,6 +1104,7 @@ function template_preprocess_faeprofile_contact(&$vars) {
  * Preprocess functions for faeprofile qualifications.
  */
 function template_preprocess_faeprofile_qualifications(&$vars) {
+	/*
   $uri = $vars['uri'];
   $qualifications = $vars['data'];
   $vars['qualifications'] = array();
@@ -993,7 +1131,53 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
 	foreach($tmp_array as $element) {
 		$vars['qualifications'][] = theme('faeprofile_qualification', array('qualification' => $element));
 	}
+	*/
 
+	$data = '';
+  $uri = $vars['uri'];
+  $vars['qualifications'] = array();
+  
+  $cache_id = "faeprofile:qualification:$uri:". md5($uri);
+  if($cached = cache_get($cache_id, 'cache'))  {
+    $data = $cached->data;
+    $vars['qualifications'] = $data;
+  }
+  
+  if(empty($data)) {
+  	if(uom_fae_api_is_url_reachable()) {
+			$qualifications = $vars['data'];
+			if(!empty($qualifications)) {
+				foreach ($qualifications as $qualification) {
+					$qualification['timestamp'] = strtotime($qualification['dateEnd']);
+					$qualification['year'] = substr($qualification['dateEnd'], 0, 4);
+					$tmp_array[] = $qualification;
+				}
+
+				// Sort by year desc
+				usort($tmp_array, function($a, $b) {
+					return $b['year'] - $a['year'];
+				});
+
+				// 
+				foreach($tmp_array as $element) {
+					$vars['qualifications'][] = theme('faeprofile_qualification', array('qualification' => $element));
+				}
+				
+				// Cache and backup
+				$data = $vars['qualifications'];
+				uom_fae_api_cache_and_backup($cache_id, $data);	
+			}
+		}
+		else {
+			// Joseki is down, so get the backup data
+			$vars['qualifications'] = uom_fae_api_custom_cache_get($cache_id);
+		}	
+  }
+  else {
+  	// Nothing
+  }
+  
+  
 }
 
 /**
