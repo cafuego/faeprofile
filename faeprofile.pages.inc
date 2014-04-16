@@ -48,7 +48,7 @@ function faeprofile_page_overview($account, $page = TRUE) {
   $uri = $account->field_fae_resource['und'][0]['url'];
   $overview = uom_fae_api_person_overview($uri);
 
-  return theme('faeprofile_overview', array('data' => $overview));
+  return theme('faeprofile_overview', array('data' => $overview, 'uri' => $uri));
 }
 
 /**
