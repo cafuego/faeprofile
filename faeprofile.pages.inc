@@ -15,7 +15,7 @@ function faeprofile_page_faeprofile($account) {
   foreach ($enabled as $element) {
     if (!empty($elements[$element]) && user_access('view faeprofile ' . $element)) {
       $callback = 'faeprofile_page_' . $element;
-      if (function_exists($callback)) {
+      if (function_exists($callback)) {      
         $page[$element] = array('#markup' => $callback($account, FALSE));
       }
     }
@@ -30,6 +30,7 @@ function faeprofile_page_faeprofile($account) {
  */
 function faeprofile_page_information($account, $page = TRUE) {
   $profile = field_get_items('user', $account, 'field_profile_profile');
+  
   if (!variable_get('faeprofile_information', 0) && empty($profile)) {
     return $page ? drupal_not_found() : '';
   }

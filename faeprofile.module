@@ -689,40 +689,10 @@ function theme_faeprofile_publication_journal($vars) {
  * Preprocess functions for faeprofile information.
  */
 function template_preprocess_faeprofile_information(&$vars) {
-  $data = '';
-  $uri = $vars['uri'];
-  $vars['information'] = '';
-  
-  $cache_id = "faeprofile:info:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['information'] = $data;
-  }
-  
-  if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
-  		$information = $vars['data'];
-  		if(!empty($information)) {
-  			$vars['information'] = $information[0]['safe_value'];
-  			
-  			// Cache and backup
-				$data = $vars['information'];
-				uom_fae_api_cache_and_backup($cache_id, $data);
-  		}
-  		else {
-  			// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
-  		}
-  	}
-  	else {
-  		// Joseki is down, so get the backup data
-			$vars['information'] = uom_fae_api_custom_cache_get($cache_id);
-  	}
-  }
-  else {
-  	// $data is above. Nothing to do here.
-  }
-  
+	// NOTE: information is a drupal user profile field
+	// It is called field_profile_field, so no cache necessary.  
+  $information = $vars['data'];
+  $vars['information'] = $information[0]['safe_value'];
 }
 
 /**
