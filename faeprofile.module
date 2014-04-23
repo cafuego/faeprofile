@@ -738,7 +738,7 @@ function template_preprocess_faeprofile_overview(&$vars) {
     $data = $cached->data;
     $vars['overview'] = $data;
   }
-  
+
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
 			$overview = $vars['data'];
@@ -1065,13 +1065,13 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   $data = '';
   $uri = $vars['uri'];
   $vars['available'] = array();
-  $vars['overview'] = array();
+  $vars['supervision'] = array();
   
   $cache_id = "faeprofile:supervision:$uri:". md5($uri);
   if($cached = cache_get($cache_id, 'cache'))  {
     $data = $cached->data;
     $vars['available'] = $data['available'];
-    $vars['overview'] = $data['overview'];
+    $vars['supervision'] = $data['supervision'];
   }
   
   if(empty($data)) {
@@ -1079,7 +1079,7 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   		$supervision = $vars['data'];
   		if(!empty($supervision)) {
   			$vars['available'] = theme('faeprofile_supervisor', array('available' => $supervision['supervisor']));
-  			$vars['overview'] = $supervision['supervisorText1'];
+  			$vars['supervision'] = $supervision['supervisorText1'];
   			
   			// Cache and backup
 				$data = $vars;
@@ -1094,7 +1094,7 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   		// Joseki is down, so get the backup data
   		$tmp_vars = uom_fae_api_custom_cache_get($cache_id);
   		$vars['available'] = $tmp_vars['available'];
-  		$vars['overview'] = $tmp_vars['overview'];
+  		$vars['supervision'] = $tmp_vars['supervision'];
   	}
   }
   else {

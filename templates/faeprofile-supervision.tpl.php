@@ -10,7 +10,7 @@
   <?php print $available; ?> for supervision.
 <?php endif; ?>
 
-<?php if ($overview): ?>
+<?php if ($supervision): ?>
   <h4>Supervision Statement</h4>
-  <p><?php print $overview; ?></p>
+  <p><?php print $supervision; ?></p>
 <?php endif; ?>
