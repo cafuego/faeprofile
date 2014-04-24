@@ -563,6 +563,9 @@ function theme_faeprofile_publication_default($vars) {
 		$combined_edition = '';
 	}
 
+	// test
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	//$output = $part_head. $part_year. $combined_edition. $type_text;	
 	$output = $part_head. $part_year. $combined_edition;
 
 	return $output;	
@@ -582,9 +585,11 @@ function theme_faeprofile_publication_whole_book($vars) {
 	//$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
 	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
 	
-	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 
+	//test
 	$output = $part_head. $part_year; 
+	//$output = $part_head. $part_year. $type_text;
 
 	return $output;
 }
@@ -605,17 +610,6 @@ function theme_faeprofile_publication_chapter($vars) {
   //$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
 	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
 
-	// Volume or edition
-	if (!empty($vars['publication']['volume'])) {
-    $part_edition = $vars['publication']['volume'];
-  }
-  else if (!empty($vars['publication']['edition'])) {
-    $part_edition = $vars['publication']['edition'];
-  }
-  else {
-    $part_edition = '';
-  }
-
 	// Page
 	if (!empty($vars['publication']['page_start_end'])) {
     $page_start_end = t(' pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
@@ -624,13 +618,13 @@ function theme_faeprofile_publication_chapter($vars) {
     $page_start_end = '';
   }
 
-	// Combine volume/edition with page
-	$tmp_array = array($part_edition, $page_start_end);
-  $combined_edition = implode(', ', array_filter($tmp_array));
+  $combined_edition = $page_start_end;
   $combined_edition = t(', @combined_edition', array('@combined_edition' => $combined_edition));
 
-	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
 
+	//test
+	//$output = $part_head. $part_year. $combined_edition. $type_text;
   $output = $part_head. $part_year. $combined_edition;
 
   return $output;
@@ -678,8 +672,10 @@ function theme_faeprofile_publication_journal($vars) {
     $page_start_end = '';
   }
 
-	//$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
-	
+	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+
+	//test
+	//$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end. $type_text;	
 	$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end;
 
 	return $output;
