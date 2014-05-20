@@ -245,6 +245,7 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
 	/* 
 	 * Hide this, since we can aggregate info in the overview tab
 	 * See http://cc.dev.arts.unimelb.edu.au/admin/config/people/faeprofile for example
+	 */
   if (variable_get('faeprofile_information', 0) && user_access('view faeprofile information')) {
     $account->content['faeprofile_information'] = array(
       '#type' => 'user_profile_item',
@@ -253,7 +254,6 @@ function faeprofile_user_view($account, $view_mode, $langcode) {
       '#weight' => -9,
     );
   }
-	*/
 
 }
 
