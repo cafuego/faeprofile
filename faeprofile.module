@@ -1748,6 +1748,12 @@ function _faeprofile_extra_grant($person_uri) {
     ':uri' => $person_uri,
   );
   $result = uom_fae_api_query(UOM_FAE_PERSON_EXTRA_GRANT, $args);
+
+	// Hack
+	if(empty($result)) {
+		return '';
+	}
+
 	$text_array = $result['rows'][0];
 	$part_1 = $part_2 = $part_3 = $part_4 = '';
 
