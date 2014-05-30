@@ -369,6 +369,7 @@ function faeprofile_theme() {
     'faeprofile_thumbnail' => array(
       'variables' => array(
         'thumbnail' => NULL,
+				'actualFilePart' => NULL,
         'style' => 'medium'
       ),
     ),
@@ -436,6 +437,7 @@ function faeprofile_theme() {
  * Get:  http://www.findanexpert.unimelb.edu.au/individual/image/thumbnail14551
  * Want: http://www.findanexpert.unimelb.edu.au/pictures/thumbnail14551picture.jpg
  */
+/*
 function theme_faeprofile_thumbnail($vars) {
   if (empty($vars['thumbnail'])) {
     return NULL;
@@ -452,6 +454,31 @@ function theme_faeprofile_thumbnail($vars) {
 
 	return $output;
 }
+*/
+
+
+function theme_faeprofile_thumbnail($vars) {
+  if (empty($vars['thumbnail'])) {
+    return NULL;
+  }
+
+	if (empty($vars['actualFilePart'])) {
+    return NULL;
+  }
+
+  $ret = preg_match('/^(http:\/\/[A-Za-z0-9\.-]+)\/individual\/image\/([a-z0-9]+)$/', $vars['thumbnail'], $matches);
+  if (!$ret) {
+    return NULL;
+  }
+
+  $image = $matches[1]. $vars['actualFilePart'];
+
+  // It seems imagecache_external not able to flush/delete image files.
+  $output = theme('faeprofile_image_markup', array('path' => $image));
+
+  return $output;
+}
+
 
 
 function theme_faeprofile_image_markup($vars) {
@@ -1092,7 +1119,7 @@ function template_preprocess_faeprofile_supervision(&$vars) {
 /**
  * Preprocess functions for faeprofile contact.
  */
-function template_preprocess_faeprofile_contact(&$vars) {  
+function template_preprocess_faeprofile_contact(&$vars) {
   $data = '';
   $uri = $vars['uri'];
   
@@ -1129,8 +1156,9 @@ function template_preprocess_faeprofile_contact(&$vars) {
 				$vars['building'] = $contact['building'];
 				$vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));
 
-				$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail']));
-  			
+				//$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail']));
+				$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail'], 'actualFilePart' => $contact['actualFilePart']));  			
+
   			// Cache and backup
 				$data = $vars;
 				uom_fae_api_cache_and_backup($cache_id, $data);
