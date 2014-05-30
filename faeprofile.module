@@ -372,6 +372,11 @@ function faeprofile_theme() {
         'style' => 'medium'
       ),
     ),
+		'faeprofile_image_markup' => array(
+      'variables' => array(
+        'path' => NULL,
+      ),
+    ),
     'faeprofile_affiliation' => array(
       'variables' => array(
         'affiliation' => NULL,
@@ -441,8 +446,23 @@ function theme_faeprofile_thumbnail($vars) {
   }
   $image = $matches[1] . '/pictures/' . $matches[2] . 'picture.jpg';
 
-  return theme('imagecache_external', array('path' => $image, 'style_name' => $vars['style']));
+	// It seems imagecache_external not able to flush/delete image files.
+	//$output = theme('imagecache_external', array('path' => $image, 'style_name' => $vars['style']));
+	$output = theme('faeprofile_image_markup', array('path' => $image));
+
+	return $output;
 }
+
+
+function theme_faeprofile_image_markup($vars) {
+	if(empty($vars['path'])) {
+    return NULL;
+  }	
+
+	$markup = '<img src="'. $vars['path']. '" alt="" />';
+	return $markup;	
+}
+
 
 /**
  * Theme a supervision status.
