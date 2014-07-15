@@ -431,31 +431,6 @@ function faeprofile_theme() {
   );
 }
 
-/**
- * Create an image from a FaE resource URI.
- *
- * Get:  http://www.findanexpert.unimelb.edu.au/individual/image/thumbnail14551
- * Want: http://www.findanexpert.unimelb.edu.au/pictures/thumbnail14551picture.jpg
- */
-/*
-function theme_faeprofile_thumbnail($vars) {
-  if (empty($vars['thumbnail'])) {
-    return NULL;
-  }
-  $ret = preg_match('/^(http:\/\/[A-Za-z0-9\.-]+)\/individual\/image\/([a-z0-9]+)$/', $vars['thumbnail'], $matches);
-  if (!$ret) {
-    return NULL;
-  }
-  $image = $matches[1] . '/pictures/' . $matches[2] . 'picture.jpg';
-
-	// It seems imagecache_external not able to flush/delete image files.
-	//$output = theme('imagecache_external', array('path' => $image, 'style_name' => $vars['style']));
-	$output = theme('faeprofile_image_markup', array('path' => $image));
-
-	return $output;
-}
-*/
-
 
 function theme_faeprofile_thumbnail($vars) {
   if (empty($vars['thumbnail'])) {
@@ -747,9 +722,10 @@ function template_preprocess_faeprofile_overview(&$vars) {
   $vars['overview'] = '';
   
   $cache_id = "faeprofile:overview:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['overview'] = $data;
+
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+  if(!empty($data)) {
+  	$vars['overview'] = $data;
   }
 
   if(empty($data)) {
@@ -758,7 +734,7 @@ function template_preprocess_faeprofile_overview(&$vars) {
 			
 			if(empty($overview) || $overview == 'Empty') {
 				// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 			}
 			else {
 				$vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
@@ -766,6 +742,7 @@ function template_preprocess_faeprofile_overview(&$vars) {
 				// Here, we cache the data, as well as update the data in backup table in database 
 				$data = $vars['overview'];
 				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 			}
   	}
   	else {
@@ -787,10 +764,11 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
   $vars['affiliations'] = array();
   
   $cache_id = "faeprofile:affiliation:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['affiliations'] = $data;
-  }
+
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['affiliations'] = $data;
+	}
   
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
@@ -811,10 +789,11 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
 				// Cache the data
 				$data = $vars['affiliations'];
 				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 			}
 			else {
 				// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 			}
   	}
  		else {
@@ -837,11 +816,12 @@ function template_preprocess_faeprofile_publications(&$vars) {
   $vars['year'] = array();
 
 	$cache_id = "faeprofile:pub:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['year'] = $data;
-  }
-
+	
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['year'] = $data;
+	}
+  
 	if(empty($data)) {
 		if(uom_fae_api_is_url_reachable()) {
 			$publications = $vars['data'];
@@ -886,10 +866,11 @@ function template_preprocess_faeprofile_publications(&$vars) {
 				// Cache and backup
 				$data = $vars['year'];
 				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 		  }
 		  else {
 		  	// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 		  }
 		}
 		else {
@@ -909,11 +890,20 @@ function template_preprocess_faeprofile_research(&$vars) {
   $vars['extra_grant_text'] = array();
   
   $cache_id = "faeprofile:research:$uri:". md5($uri);
+  
+  /*
   if($cached = cache_get($cache_id, 'cache'))  {
     $data = $cached->data;
     $vars['year'] = $data['year'];
     $vars['extra_grant_text'] = $data['extra_grant_text'];
   }
+  */
+  
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['year'] = $data['year'];
+    $vars['extra_grant_text'] = $data['extra_grant_text'];
+	}
   
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
@@ -952,12 +942,14 @@ function template_preprocess_faeprofile_research(&$vars) {
 			
 			if(empty($vars['year']) && empty($vars['extra_grant_text'])) {
 				// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				//cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 			}
 			else {
 				// Cache and backup
 				$data = $vars;
 				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 			}
   	}
   	else {
@@ -979,10 +971,11 @@ function template_preprocess_faeprofile_awards(&$vars) {
 	$vars['awards'] = array();
 	
 	$cache_id = "faeprofile:award:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['awards'] = $data;
-  }
+	
+	$data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['awards'] = $data;
+	}
 	
 	if(empty($data)) {
 		if(uom_fae_api_is_url_reachable()) {
@@ -1014,10 +1007,11 @@ function template_preprocess_faeprofile_awards(&$vars) {
 				// Cache and backup
 				$data = $vars['awards'];
 				uom_fae_api_cache_and_backup($cache_id, $data);	
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 			}
 			else {
 				// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 			}
 		}
 		else {
@@ -1039,10 +1033,11 @@ function template_preprocess_faeprofile_linkages(&$vars) {
   $vars['linkages'] = array();
   
   $cache_id = "faeprofile:linkages:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['linkages'] = $data;
-  }
+  
+	$data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['linkages'] = $data;
+	}
   
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
@@ -1054,11 +1049,12 @@ function template_preprocess_faeprofile_linkages(&$vars) {
 				
 				// Cache and backup
 				$data = $vars['linkages'];
-				uom_fae_api_cache_and_backup($cache_id, $data);	
+				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 			}
 			else {
 				// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 			}
 		}
 		else {
@@ -1081,11 +1077,12 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   $vars['supervision'] = array();
   
   $cache_id = "faeprofile:supervision:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    $vars['available'] = $data['available'];
+  
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['available'] = $data['available'];
     $vars['supervision'] = $data['supervision'];
-  }
+	}
   
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
@@ -1097,10 +1094,11 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   			// Cache and backup
 				$data = $vars;
 				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
   		}
   		else {
   			// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
   		}
   	}
   	else {
@@ -1124,10 +1122,10 @@ function template_preprocess_faeprofile_contact(&$vars) {
   $uri = $vars['uri'];
   
   $cache_id = "faeprofile:contact:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
-    
-    $vars['email'] = $data['email'];
+  
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['email'] = $data['email'];
     $vars['phone'] = $data['phone'];
     $vars['webpage'] = $data['webpage'];
     $vars['room'] = $data['room'];
@@ -1135,7 +1133,7 @@ function template_preprocess_faeprofile_contact(&$vars) {
     $vars['building'] = $data['building'];
     $vars['supervisor'] = $data['supervisor'];
     $vars['image'] = $data['image'];
-  }
+	}  
   
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
@@ -1162,10 +1160,11 @@ function template_preprocess_faeprofile_contact(&$vars) {
   			// Cache and backup
 				$data = $vars;
 				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
   		}
   		else {
   			// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
   		}
   	}
   	else {
@@ -1198,10 +1197,11 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
   $vars['qualifications'] = array();
   
   $cache_id = "faeprofile:qualification:$uri:". md5($uri);
-  if($cached = cache_get($cache_id, 'cache'))  {
-    $data = $cached->data;
+  
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
     $vars['qualifications'] = $data;
-  }
+	}
   
   if(empty($data)) {
   	if(uom_fae_api_is_url_reachable()) {
@@ -1225,11 +1225,12 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
 				
 				// Cache and backup
 				$data = $vars['qualifications'];
-				uom_fae_api_cache_and_backup($cache_id, $data);	
+				uom_fae_api_cache_and_backup($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data);
 			}
 			else {
 				// Clear cache only
-				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
+				uom_fae_api_profile_custom_cache_set($cache_id, '');
 			}
 		}
 		else {
