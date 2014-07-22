@@ -481,7 +481,7 @@ function theme_faeprofile_grant($vars) {
   $output = t('<a href="!link">!title</a> (@scheme) awarded by @organisation', array(
     '!title' => $vars['grant']['grant'],
     '!link' => $vars['grant']['link'],
-    '@scheme' => !empty($vars['grant']['scheme']) ? $vars['grant']['scheme'] : '',
+    '@scheme' => !empty($vars['grant']['scheme']) ? $vars['grant']['scheme'] . '.' : '',
     '@organisation' => $vars['grant']['organisation']
   ));
 
