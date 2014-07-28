@@ -1122,7 +1122,7 @@ function template_preprocess_faeprofile_supervision(&$vars) {
 function template_preprocess_faeprofile_contact(&$vars) {
   $data = '';
   $uri = $vars['uri'];
-  
+ 
   $cache_id = "faeprofile:contact:$uri:". md5($uri);
   if($cached = cache_get($cache_id, 'cache'))  {
     $data = $cached->data;
@@ -1135,6 +1135,7 @@ function template_preprocess_faeprofile_contact(&$vars) {
     $vars['building'] = $data['building'];
     $vars['supervisor'] = $data['supervisor'];
     $vars['image'] = $data['image'];
+		$vars['faeprofile_id'] = $data['faeprofile_id'];
   }
   
   if(empty($data)) {
@@ -1159,6 +1160,8 @@ function template_preprocess_faeprofile_contact(&$vars) {
 				//$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail']));
 				$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail'], 'actualFilePart' => $contact['actualFilePart']));  			
 
+				$vars['faeprofile_id'] = _get_fae_id_by_uri($uri);
+
   			// Cache and backup
 				$data = $vars;
 				uom_fae_api_cache_and_backup($cache_id, $data);
@@ -1180,6 +1183,7 @@ function template_preprocess_faeprofile_contact(&$vars) {
 		  $vars['building'] = $tmp_vars['building'];
 		  $vars['supervisor'] = $tmp_vars['supervisor'];
 		  $vars['image'] = $tmp_vars['image'];
+			$vars['faeprofile_id'] = $tmp_vars['faeprofile_id'];
   	}
   }
   else {
@@ -1873,4 +1877,26 @@ function _faeprofile_find_person_name_in_drupal($person_link = '') {
   	$person_name = '';
   }
   return $person_name;
+}
+
+
+function _get_fae_id_by_uri($uri) {
+	// Expected uri == http://www.findanexpert.unimelb.edu.au/individual/person26101
+	$faeprofile_id = '';
+
+	if(!empty($uri)) {
+		$pattern = "/\d+$/";
+
+		if(preg_match($pattern, $uri, $matches))
+		{
+   		 $faeprofile_id = $matches[0];	
+		}
+		else {
+		}
+	}
+	else {
+
+	}
+
+	return $faeprofile_id;
 }
