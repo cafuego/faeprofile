@@ -1250,10 +1250,19 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
  * Theme a qualification.
  */
 function theme_faeprofile_qualification($vars) {
-  return t('@degree (@organisation, @year)', array(
+	if($vars['qualification']['timestamp'] === FALSE) {
+		// Empty timestamp
+		$display_year = '';	
+	}
+	else {
+		$display_year = ' , '. date('Y', $vars['qualification']['timestamp']);
+	}
+
+
+  return t('@degree (@organisation@year)', array(
     '@degree' => $vars['qualification']['degreeLabel'],
     '@organisation' => $vars['qualification']['orgLabel'],
-    '@year' => date('Y', $vars['qualification']['timestamp']),
+    '@year' => $display_year,
   ));
 }
 
