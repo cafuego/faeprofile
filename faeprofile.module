@@ -1256,7 +1256,7 @@ function theme_faeprofile_qualification($vars) {
 		$display_year = '';	
 	}
 	else {
-		$display_year = ' , '. date('Y', $vars['qualification']['timestamp']);
+		$display_year = ', '. date('Y', $vars['qualification']['timestamp']);
 	}
 
 
