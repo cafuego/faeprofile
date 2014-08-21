@@ -540,7 +540,8 @@ function theme_faeprofile_affiliation($vars) {
 
 /**
  * Theme a publication as default.
- */ 
+ */
+/* 
 function theme_faeprofile_publication_default($vars) {
 	$output = ' ';
 
@@ -592,8 +593,47 @@ function theme_faeprofile_publication_default($vars) {
 
 	return $output;	
 }
+*/
 
-// 
+function theme_faeprofile_publication_default($vars) {
+	$output = '';
+
+  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';
+  $editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). '.' : '';
+  $link = $vars['publication']['pub_uri'];
+  $title = strip_tags($vars['publication']['title']);
+
+  $pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
+  $pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
+  $pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';
+
+  $year = ' '. $vars['publication']['year'];
+  $page_start_end = !empty($vars['publication']['page_start_end']) ? ' pp. '. $vars['publication']['page_start_end'] : '';
+  $edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
+  $type_text = ' '.$vars['publication']['type_text'];
+
+  $output = t('@author_text <i><a href="!link">!title</a></i>.@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@year@page_start_end@edition@type_text', array(
+    '@author_text' => $author_text,
+    '!link' => $link,
+    '!title' => $title,
+    '@editor_text' => $editor_text,
+
+    '@pub_parent' => $pub_parent,
+    '@pub_in' => $pub_in,
+    '@pub_org' => $pub_org,
+
+    '@year' => $year,
+    '@page_start_end' => $page_start_end,
+    '@edition' => '',
+
+    '@type_text' => '',
+  ));
+
+	return $output;
+}
+
+//
+/*
 function theme_faeprofile_publication_whole_book($vars) {
 	$output = ' ';	
 
@@ -615,8 +655,33 @@ function theme_faeprofile_publication_whole_book($vars) {
 
 	return $output;
 }
+*/
+
+function theme_faeprofile_publication_whole_book($vars) {
+  $output = '';
+	
+	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';	
+	$link = $vars['publication']['pub_uri'];	
+	$title = strip_tags($vars['publication']['title']);
+	$pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
+
+	$year = ' '. $vars['publication']['year'];
+	$type_text = ' '.$vars['publication']['type_text']; 
+
+	$output = t('@author_text <i><a href="!link">!title</a></i>.@pub_org@year@type_text', array(
+		'@author_text' => $author_text,
+		'!link' => $link,
+		'!title' => $title,
+		'@pub_org' => $pub_org,
+		'@year' => $year,
+		'@type_text' => '',
+	));
+
+  return $output;
+}
 
 //
+/*
 function theme_faeprofile_publication_chapter($vars) {
   $output = ' ';
 
@@ -651,7 +716,49 @@ function theme_faeprofile_publication_chapter($vars) {
 
   return $output;
 }
+*/
 
+//
+function theme_faeprofile_publication_chapter($vars) {
+	$output = '';	
+
+	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';
+	$editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). '.' : '';
+  $link = $vars['publication']['pub_uri'];
+  $title = strip_tags($vars['publication']['title']);
+
+  $pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
+	$pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
+	$pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';	
+
+  $year = ' '. $vars['publication']['year'];
+	$page_start_end = !empty($vars['publication']['page_start_end']) ? ' pp. '. $vars['publication']['page_start_end'] : '';
+	$edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
+  $type_text = ' '.$vars['publication']['type_text'];
+
+	$output = t('@author_text <i><a href="!link">!title</a></i>.@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@year@page_start_end@edition@type_text', array(
+    '@author_text' => $author_text,
+    '!link' => $link,
+    '!title' => $title,
+		'@editor_text' => $editor_text,
+
+		'@pub_parent' => $pub_parent,
+		'@pub_in' => $pub_in,
+    '@pub_org' => $pub_org,
+
+    '@year' => $year,
+		'@page_start_end' => $page_start_end,
+		'@edition' => '',		
+
+    '@type_text' => '',
+  ));
+
+
+	return $output;
+}
+
+
+/*
 //
 function theme_faeprofile_publication_journal($vars) {
 	$output = '';
@@ -702,6 +809,47 @@ function theme_faeprofile_publication_journal($vars) {
 
 	return $output;
 }
+*/
+
+//
+function theme_faeprofile_publication_journal($vars) {
+	$output = '';
+
+  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';
+  $link = $vars['publication']['pub_uri'];
+  $title = strip_tags($vars['publication']['title']);
+
+  $pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
+  $pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
+  $pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';
+
+  $year = ' '. $vars['publication']['year'];
+  $page_start_end = !empty($vars['publication']['page_start_end']) ? ' pp. '. $vars['publication']['page_start_end'] : '';
+  $edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
+	$issue_num = !empty($vars['publication']['issue_num']) ? ' '. $vars['publication']['issue_num'] : '';
+  $type_text = ' '.$vars['publication']['type_text'];
+
+  $output = t('@author_text <i><a href="!link">!title</a></i>.<i>@pub_parent</i><i>@pub_in</i>@pub_org@edition@issue_num@year@page_start_end@type_text', array(
+    '@author_text' => $author_text,
+    '!link' => $link,
+    '!title' => $title,
+
+    '@pub_parent' => $pub_parent,
+    '@pub_in' => $pub_in,
+    '@pub_org' => '',
+		'@edition' => $edition,
+		'@issue_num' => $issue_num,
+
+    '@year' => $year,
+    '@page_start_end' => $page_start_end,
+
+    '@type_text' => '',
+  ));
+
+
+	return $output;
+}
+
 
 /**
  * Preprocess functions for faeprofile information.
@@ -812,6 +960,7 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
 /**
  * Preprocess functions for faeprofile publications.
  */
+/* 
 function template_preprocess_faeprofile_publications(&$vars) {
 	$data = '';
   $uri = $vars['uri'];
@@ -881,6 +1030,92 @@ function template_preprocess_faeprofile_publications(&$vars) {
 		}
 	}
 }
+*/
+
+
+/**
+ * Preprocess functions for faeprofile publications.
+ */
+function template_preprocess_faeprofile_publications(&$vars) { 
+	$data = '';
+  $uri = $vars['uri'];
+  $vars['year'] = array();
+
+	$cache_id = "faeprofile:pub:$uri:". md5($uri);
+	
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	if(!empty($data)) {
+		$vars['year'] = $data;
+	}
+
+	if(empty($data)) {
+		if(uom_fae_api_is_url_reachable()) {
+      $pubs = $vars['data'];
+
+			if(!empty($pubs)) {
+        foreach ($pubs as $pub) {
+					// Prepare
+					$datestamp = strtotime($pub['the_date_value']);
+					$type_array = _faeprofile_publication_type($pub['the_type']);
+					$page_start_end_text = _faeprofile_page_start_end($pub['the_page_start'], $pub['the_page_end']);
+
+					$author_text = _faeprofile_author_text($pub['the_author_label'], $pub['authors'], $pub['the_author_links']);
+					$editor_text = _faeprofile_editor_text($pub['the_editor_label'], $pub['editors'], $pub['the_editor_links']);
+			
+
+					// Actual data
+					$temp = array(
+						'title' => $pub['the_title'],
+						'pub_uri' => $pub['pub_uri'],						
+
+						'type_code' => $type_array['type_code'],
+            'type_text' => $type_array['type_text'],
+
+						'date' => date('Y', $datestamp),
+            'year' => date('Y', $datestamp),
+	
+						'publish_org' => $pub['the_publish_org'], 
+						'published_in' => $pub['the_published_in'],
+						'parent_title' => $pub['the_parent_title'],
+
+						'edition' => $pub['the_edition'],
+						'isbn13' => $pub['the_isbn13'],
+						'volume' => $pub['the_volume'],
+						'issue_num' => $pub['the_issue_num'],
+						'issue' => $pub['the_issue'],
+						'page_start_end' => $page_start_end_text,
+						
+						'author_text' => $author_text,
+						'editor_text' => $editor_text,	
+					);
+
+					//test
+					//dsm($temp);
+					$year_index = $temp['year'];
+          $pub_type_index = $temp['type_text'];
+          $pub_uri_index = $temp['pub_uri'];
+          $vars['year'][$year_index][$pub_type_index][$pub_uri_index] = _faeprofile_publication_select_theme($temp);
+				} // End foreach
+				krsort($vars['year']);
+			
+				// Cache
+        $data = $vars['year'];
+        uom_fae_api_profile_custom_cache_set($cache_id, $data);
+	
+			} // End if
+			else {
+				// Clear cache only
+        uom_fae_api_profile_custom_cache_set($cache_id, '');
+			}
+		}
+		else {
+      // Joseki is down, so get the backup data
+      $vars['year'] = uom_fae_api_custom_cache_get($cache_id);
+    }
+	}
+
+}
+
 
 /**
  * Preprocess functions for faeprofile research.
@@ -1582,6 +1817,7 @@ function _faeprofile_update_supervisor_status($account) {
   return 1;
 }
 
+/*
 function _faeprofile_author_text($article_uri) {
   $args = array(
   	':uri' => $article_uri,
@@ -1637,7 +1873,76 @@ function _faeprofile_author_text($article_uri) {
 
 	return $return_string;
 }
+*/
 
+function _faeprofile_author_text($label_str, $uri_str, $link_str) {
+	$return_str = '';
+	$output = array();
+
+	// These always matching up for authors
+	$labels = explode('|', $label_str);
+	$uris = explode('|', $uri_str);
+	$links = explode('|', $link_str);	
+
+	$i = 0;
+	foreach($labels as $label) {
+		// Prepare
+		$posi_num = _faeprofile_get_pub_posi_num($uris[$i]);
+		$new_label = _faeprofile_get_internal_label($label, $links[$i]);
+
+		$output[$i] = array(
+			'label' => $new_label,
+			'posi_num' => $posi_num, 
+		);
+		++$i;
+	}
+	usort($output, "_faeprofile_sort_pub_posi");
+
+	// Build string
+	foreach($output as $item) {
+		$return_str .= $item['label']. ', ';	
+	}
+	$return_str = substr($return_str, 0, -2);
+
+	//test
+	//dsm($return_str);
+	
+	return $return_str;
+}
+
+
+function _faeprofile_sort_pub_posi($a, $b) {
+	$int_a = (int) $a['posi_num'];
+	$int_b = (int) $b['posi_num'];
+
+	return ($int_a - $int_b); 
+}
+
+
+function _faeprofile_get_internal_label($label='', $link='') {
+	$new_label = '';
+
+	if($link === 'empty' || $link === '') {
+		$new_label = $label;
+	}
+	else {
+		$new_label = _faeprofile_find_person_name_in_drupal($link);
+	}
+	
+	return $new_label;
+}
+
+
+function _faeprofile_get_pub_posi_num($uri) {
+	// e.g. http://www.findanexpert.unimelb.edu.au/individual/publication96292position1Y
+	// Need to get 1 as position
+	$pattern = "/.+(\d)\w$/i";
+  preg_match($pattern, $uri, $matches);	
+	$num = $matches[1];
+	return $num;	
+}
+
+/*
 function _faeprofile_editor_text($article_uri) {
 	$output = '';
 
@@ -1674,7 +1979,45 @@ function _faeprofile_editor_text($article_uri) {
 
 	return $output;
 }
+*/
 
+
+function _faeprofile_editor_text($label_str, $uri_str, $link_str) {
+	$return_str = '';
+
+	// We use joseki person label for user's name
+	if(empty($label_str)) {
+
+	}
+	else {
+		$labels = explode('|', $label_str);
+		$uris = explode('|', $uri_str);
+
+		$i = 0;
+  	foreach($labels as $label) {
+    	// Prepare
+    	$posi_num = _faeprofile_get_pub_posi_num($uris[$i]);
+
+    	$output[$i] = array(
+      	'label' => $label,
+      	'posi_num' => $posi_num,
+    	);
+    	++$i;
+  	}
+  	usort($output, "_faeprofile_sort_pub_posi");
+		
+		// Build string
+  	foreach($output as $item) {
+    	$return_str .= $item['label']. ', ';
+  	}
+  	$return_str = substr($return_str, 0, -2);			
+	}
+
+	return $return_str;
+}
+
+
+/*
 function _faeprofile_page_start_end($article_uri) {
 	$output = '';	
 
@@ -1704,6 +2047,22 @@ function _faeprofile_page_start_end($article_uri) {
 
 	return $output;
 }
+*/
+
+
+function _faeprofile_page_start_end($page_start='', $page_end='') {
+	$output = '';
+
+	if(!empty($page_start) && !empty($page_end)) {
+  	$output = $page_start. '-'. $page_end;
+  }
+  else {
+  	$output = $page_start. $page_end;
+  }
+	
+	$output = ' '. $output;
+	return $output;
+}
 
 
 /**
@@ -1718,6 +2077,7 @@ function _faeprofile_publication_type($uri) {
   // The final two characters of the publication type uri match our array.
   $type_code = substr($uri, strlen('http://www.findanexpert.unimelb.edu.au/ontology/PublicationType'));
 	$type_text = uom_fae_api_publication_types($type_code);
+
 	$output = array('type_code' => $type_code, 'type_text' => $type_text);
   return $output; 
 }
