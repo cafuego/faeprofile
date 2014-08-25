@@ -2017,6 +2017,41 @@ function _faeprofile_editor_text($label_str, $uri_str, $link_str) {
 }
 
 
+function _faeprofile_person_text($label_str, $uri_str) {
+	$return_str = '';
+
+  // We use joseki person label for user's name
+  if(empty($label_str)) {
+
+  }
+  else {
+    $labels = explode('|', $label_str);
+    $uris = explode('|', $uri_str);
+
+    $i = 0;
+    foreach($labels as $label) {
+      // Prepare
+      $posi_num = _faeprofile_get_pub_posi_num($uris[$i]);
+
+      $output[$i] = array(
+        'label' => trim($label),
+        'posi_num' => $posi_num,
+      );
+      ++$i;
+    }
+    usort($output, "_faeprofile_sort_pub_posi");
+
+    // Build string
+    foreach($output as $item) {
+      $return_str .= $item['label']. ', ';
+    }
+    $return_str = substr($return_str, 0, -2);
+  }
+
+  return $return_str;
+}
+
+
 /*
 function _faeprofile_page_start_end($article_uri) {
 	$output = '';	
@@ -2054,13 +2089,12 @@ function _faeprofile_page_start_end($page_start='', $page_end='') {
 	$output = '';
 
 	if(!empty($page_start) && !empty($page_end)) {
-  	$output = $page_start. '-'. $page_end;
+  	$output = ' '. $page_start. '-'. $page_end;
   }
   else {
   	$output = $page_start. $page_end;
   }
 	
-	$output = ' '. $output;
 	return $output;
 }
 
