@@ -1894,6 +1894,16 @@ function _faeprofile_author_text($label_str, $uri_str, $link_str) {
 			'label' => $new_label,
 			'posi_num' => $posi_num, 
 		);
+
+		//test
+		/*
+		dsm('start');
+		dsm($label);
+		dsm($new_label);
+		dsm($links[$i]);
+		dsm('end');
+		*/		
+
 		++$i;
 	}
 	usort($output, "_faeprofile_sort_pub_posi");
@@ -1922,7 +1932,7 @@ function _faeprofile_sort_pub_posi($a, $b) {
 function _faeprofile_get_internal_label($label='', $link='') {
 	$new_label = '';
 
-	if($link === 'empty' || $link === '') {
+	if($link == 'empty' || $link == '') {
 		$new_label = $label;
 	}
 	else {
