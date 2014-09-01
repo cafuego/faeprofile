@@ -532,9 +532,10 @@ function theme_faeprofile_linkage($vars) {
  * Theme an affiliation.
  */
 function theme_faeprofile_affiliation($vars) {
-  return t('@organisation. @role', array(
+  return t('@organisation. @role. @start_end_time', array(
     '@organisation' => $vars['affiliation']['organisation'],
-    '@role' => $vars['affiliation']['role']
+    '@role' => $vars['affiliation']['role'],
+		'@start_end_time' => $vars['affiliation']['start_end_time'],
   ));
 }
 
@@ -908,7 +909,11 @@ function template_preprocess_faeprofile_overview(&$vars) {
 /**
  * Preprocess functions for faeprofile affiliation.
  */
+/*
 function template_preprocess_faeprofile_affiliations(&$vars) {
+	//test
+	dsm($vars);
+
   $data = '';
   $uri = $vars['uri'];
   $vars['affiliations'] = array();
@@ -954,7 +959,61 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
   else {
   	// $data is above. Nothing to do here.
   }
+}
+*/
+
+function template_preprocess_faeprofile_affiliations(&$vars) {
+	
+	$data = '';
+  $uri = $vars['uri'];
+  $vars['affiliations'] = array();
   
+  $cache_id = "faeprofile:affiliation:$uri:". md5($uri);
+
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+  if(!empty($data)) {
+    $vars['affiliations'] = $data;
+  }
+
+	if(empty($data)) {
+		if(uom_fae_api_is_url_reachable()) {
+      // We already run sparql and data is within $vars
+      // We don't run sparql here within this if statement, 
+      // so uom_fae_api_is_url_reachable is not necessary, but just put it here.
+      $affiliations = $vars['data'];
+      
+      if(!empty($affiliations)) {
+        foreach ($affiliations as $affiliation) {
+					// Prepare
+					$start_time = empty($affiliation['the_start_time']) ? '' : date('Y', strtotime($affiliation['the_start_time']));
+					$end_time = empty($affiliation['the_end_time']) ? '' : date('Y', strtotime($affiliation['the_end_time']));
+					$start_end_time = _faeprofile_member_start_end($start_time, $end_time);
+
+          $temp = array(
+            'organisation' => check_plain($affiliation['org_label']),
+            'role' => check_plain($affiliation['role_label']),
+						'start_end_time' => $start_end_time,
+          );
+          $vars['affiliations'][] = theme('faeprofile_affiliation', array('affiliation' => $temp));
+        }
+      
+        // Cache the data
+        $data = $vars['affiliations'];
+        uom_fae_api_profile_custom_cache_set($cache_id, $data);
+      }
+      else {
+        // Clear cache only
+        uom_fae_api_profile_custom_cache_set($cache_id, '');
+      }
+    }
+    else {
+      // Joseki is down, so get the backup data
+      $vars['affiliations'] = uom_fae_api_custom_cache_get($cache_id);
+    }
+	}
+	else {
+		// $data is above. Nothing to do here.
+	}
 }
 
 /**
@@ -2108,6 +2167,21 @@ function _faeprofile_page_start_end($page_start='', $page_end='') {
 	return $output;
 }
 
+function _faeprofile_member_start_end($page_start='', $page_end='') {
+	$output = '';
+
+  if(!empty($page_start) && !empty($page_end)) {
+    $output = ' '. $page_start. '-'. $page_end;
+  }
+	elseif(!empty($page_start) && empty($page_end)) {
+		$output = ' '. $page_start. '-';
+	}
+  else {
+    $output = $page_start. $page_end;
+  }
+
+  return $output;
+}
 
 /**
  * Turn a publication type URI into a label.
