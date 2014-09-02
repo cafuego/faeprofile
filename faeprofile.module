@@ -737,7 +737,7 @@ function theme_faeprofile_publication_chapter($vars) {
 	$edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
   $type_text = ' '.$vars['publication']['type_text'];
 
-	$output = t('@author_text <i><a href="!link">!title</a></i>.@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@year@page_start_end@edition@type_text', array(
+	$output = t('@author_text "<a href="!link">!title</a>".@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@year@page_start_end@edition@type_text', array(
     '@author_text' => $author_text,
     '!link' => $link,
     '!title' => $title,
@@ -830,7 +830,7 @@ function theme_faeprofile_publication_journal($vars) {
 	$issue_num = !empty($vars['publication']['issue_num']) ? ' '. $vars['publication']['issue_num'] : '';
   $type_text = ' '.$vars['publication']['type_text'];
 
-  $output = t('@author_text <i><a href="!link">!title</a></i>.<i>@pub_parent</i><i>@pub_in</i>@pub_org@edition@issue_num@year@page_start_end@type_text', array(
+  $output = t('@author_text "<a href="!link">!title</a>".<i>@pub_parent</i><i>@pub_in</i>@pub_org@edition@issue_num@year@page_start_end@type_text', array(
     '@author_text' => $author_text,
     '!link' => $link,
     '!title' => $title,
@@ -846,7 +846,6 @@ function theme_faeprofile_publication_journal($vars) {
 
     '@type_text' => '',
   ));
-
 
 	return $output;
 }
@@ -2229,7 +2228,14 @@ function _faeprofile_publication_select_theme($pub) {
     'C2', // 'C2'  => t('Article in unrefereed journal (including articles in professional journals)'),
 		'C3', // 'C3'  => t('Unrefereed Letter or Note'),
     'C5', // 'C5'  => t('Other refereed contribution to a refereed journal'),
+
+		// Hack use the journal format for now
+		'D4', // Major reference works
+		'F1', // Full written papers refereed
+		'F2', // Full written papers unrefereed	
   );
+
+	
 
 	// Type code
 	$type_code = $pub['type_code'];
