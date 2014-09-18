@@ -761,8 +761,9 @@ function template_preprocess_faeprofile_overview(&$vars) {
 				cache_set($cache_id, '', 'cache', time() + FAE_MODULE_CACHE_TIME);
 			}
 			else {
-				$vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
-			
+				//$vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
+				$vars['overview'] = $overview['overviewText1']. $overview['overviewText2'];			
+
 				// Here, we cache the data, as well as update the data in backup table in database 
 				$data = $vars['overview'];
 				uom_fae_api_cache_and_backup($cache_id, $data);
