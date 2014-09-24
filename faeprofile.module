@@ -393,6 +393,11 @@ function faeprofile_theme() {
         'publication' => NULL,
       ),
     ),
+		'faeprofile_publication_translated_book' => array(
+      'variables' => array(
+        'publication' => NULL,
+      ),
+    ),
 		'faeprofile_publication_chapter' => array(
       'variables' => array(
         'publication' => NULL,
@@ -539,82 +544,34 @@ function theme_faeprofile_affiliation($vars) {
   ));
 }
 
-/**
- * Theme a publication as default.
- */
-/* 
-function theme_faeprofile_publication_default($vars) {
-	$output = ' ';
-
-	$part_head = t('@author_text "<a href="!link">!title</a>". @editor_text <i>@parent</i> @publisher', array(
-		'!title' => strip_tags($vars['publication']['title']),
-		'@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
-		'@editor_text' => !empty($vars['publication']['editor_text']) ? $vars['publication']['editor_text']. '.' : '',
-		'!link' => $vars['publication']['link'],
-		'@parent' => !empty($vars['publication']['parent']) ? strip_tags($vars['publication']['parent']). '.' : '',
-		'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher'] : '',
-	));
-
-	$part_year = t(', @year', array('@year' => $vars['publication']['year']));
-
-	// Volume or edition
-	if (!empty($vars['publication']['volume'])) {
-		$part_edition = $vars['publication']['volume'];
-	}
-	else if (!empty($vars['publication']['edition'])) {
-		$part_edition = $vars['publication']['edition'];
-	}
-	else {
-		$part_edition = '';
-	}
-
-	// Page
-	if (!empty($vars['publication']['page_start_end'])) {
-		$page_start_end = t(' pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
-	}
-	else {
-		$page_start_end = '';
-	}
-
-	// Combine volume/edition with page
-	$tmp_array = array($part_edition, $page_start_end);
-	$combined_edition = implode(', ', array_filter($tmp_array));
-
-	if(!empty($combined_edition)) {
-		$combined_edition = t(', @combined_edition', array('@combined_edition' => $combined_edition));
-	}
-	else {
-		$combined_edition = '';
-	}
-
-	// test
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
-	//$output = $part_head. $part_year. $combined_edition. $type_text;	
-	$output = $part_head. $part_year. $combined_edition;
-
-	return $output;	
-}
-*/
 
 function theme_faeprofile_publication_default($vars) {
 	$output = '';
 
-  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';
-  $editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). '.' : '';
+  $author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
+  $editor_text = !empty($vars['publication']['editor_text']) ? ', in '. html_entity_decode( strip_tags($vars['publication']['editor_text']) ). ' ed(s)' : '';
   $link = $vars['publication']['pub_uri'];
-  $title = strip_tags($vars['publication']['title']);
+  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
 
-  $pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
-  $pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
-  $pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
+  $pub_in = !empty($vars['publication']['published_in']) ? ', '. html_entity_decode( $vars['publication']['published_in'] ) : '';
+  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. html_entity_decode( $vars['publication']['parent_title'] ) : '';
 
   $year = ' '. $vars['publication']['year'];
-  $page_start_end = !empty($vars['publication']['page_start_end']) ? ' pp. '. $vars['publication']['page_start_end'] : '';
-  $edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
+  $page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
+
+	$volume = !empty($vars['publication']['volume']) ? ', vol. '. $vars['publication']['volume'] : '';
+
+	// $issue_num and $issue are basically the same, but many people are using $issue in joseki.
+  $issue_num = !empty($vars['publication']['issue_num']) ? ', no. '. $vars['publication']['issue_num'] : '';
+  $issue = !empty($vars['publication']['issue']) ? ', no. '. $vars['publication']['issue'] : '';
+  $edition = !empty($vars['publication']['edition']) ? ', '. $vars['publication']['edition'] : '';
+
   $type_text = ' '.$vars['publication']['type_text'];
 
-  $output = t('@author_text <i><a href="!link">!title</a></i>.@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@year@page_start_end@edition@type_text', array(
+  $output = t('@author_text@year \'<a href="!link">!title</a>\'@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@volume@issue@issue_num@edition@page_start_end@type_text.', array(
     '@author_text' => $author_text,
+		'@year' => $year,
     '!link' => $link,
     '!title' => $title,
     '@editor_text' => $editor_text,
@@ -623,7 +580,9 @@ function theme_faeprofile_publication_default($vars) {
     '@pub_in' => $pub_in,
     '@pub_org' => $pub_org,
 
-    '@year' => $year,
+		'@volume' => $volume,
+		'@issue' => $issue,
+		'@issue_num' => $issue_num,
     '@page_start_end' => $page_start_end,
     '@edition' => '',
 
@@ -633,112 +592,79 @@ function theme_faeprofile_publication_default($vars) {
 	return $output;
 }
 
-//
-/*
-function theme_faeprofile_publication_whole_book($vars) {
-	$output = ' ';	
-
-	$part_head = t('@author_text <i><a href="!link">!title</a></i>. @publisher', array(
-    '!title' => strip_tags($vars['publication']['title']),
-    '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
-    '!link' => $vars['publication']['link'],
-   	'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher']. ',' : '', 
-  ));
-
-	//$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
-	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
-	
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
-
-	//test
-	$output = $part_head. $part_year; 
-	//$output = $part_head. $part_year. $type_text;
-
-	return $output;
-}
-*/
 
 function theme_faeprofile_publication_whole_book($vars) {
   $output = '';
-	
-	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';	
-	$link = $vars['publication']['pub_uri'];	
-	$title = strip_tags($vars['publication']['title']);
-	$pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
+  
+  $author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : ''; 
+  $link = $vars['publication']['pub_uri'];  
+  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
 
-	$year = ' '. $vars['publication']['year'];
-	$type_text = ' '.$vars['publication']['type_text']; 
+  $year = ' '. $vars['publication']['year'];
+  $type_text = ' '.$vars['publication']['type_text']; 
 
-	$output = t('@author_text <i><a href="!link">!title</a></i>.@pub_org@year@type_text', array(
-		'@author_text' => $author_text,
-		'!link' => $link,
-		'!title' => $title,
-		'@pub_org' => $pub_org,
+  $output = t('@author_text@year, <i><a href="!link">!title</a></i>@pub_org@type_text.', array(
+    '@author_text' => $author_text,
 		'@year' => $year,
-		'@type_text' => '',
-	));
-
-  return $output;
-}
-
-//
-/*
-function theme_faeprofile_publication_chapter($vars) {
-  $output = ' ';
-
-  $part_head = t('@author_text "<a href="!link">!title</a>". @editor_text <i>@parent</i> @publisher', array(
-    '!title' => strip_tags($vars['publication']['title']),
-    '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
-		'@editor_text' => !empty($vars['publication']['editor_text']) ? $vars['publication']['editor_text']. '.' : '',
-    '!link' => $vars['publication']['link'],
-    '@parent' => !empty($vars['publication']['parent']) ? strip_tags($vars['publication']['parent']). '.' : '',
-    '@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher']. ',' : '',
+    '!link' => $link,
+    '!title' => $title,
+    '@pub_org' => $pub_org,
+    '@type_text' => '',
   ));
 
-  //$part_year = t(' <span class="faeprofile-listDateTime">@year</span>', array('@year' => $vars['publication']['year']));
-	$part_year = t(' @year', array('@year' => $vars['publication']['year']));
+  return $output;
+}
 
-	// Page
-	if (!empty($vars['publication']['page_start_end'])) {
-    $page_start_end = t(' pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
-  }
-  else {
-    $page_start_end = '';
-  }
 
-  $combined_edition = $page_start_end;
-  $combined_edition = t(', @combined_edition', array('@combined_edition' => $combined_edition));
+function theme_faeprofile_publication_translated_book($vars) {
+  $output = '';
 
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
+	//
+	$author_text = !empty($vars['publication']['editor_text']) ? html_entity_decode( strip_tags($vars['publication']['editor_text']) ). ' ' : ''; 
+  $translator_text = !empty($vars['publication']['author_text']) ? ', trans '. html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
 
-	//test
-	//$output = $part_head. $part_year. $combined_edition. $type_text;
-  $output = $part_head. $part_year. $combined_edition;
+  $link = $vars['publication']['pub_uri'];
+  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
+
+  $year = $vars['publication']['year'];
+  $type_text = ' '.$vars['publication']['type_text'];
+
+  $output = t('@author_text@year, <i><a href="!link">!title</a></i>@translator_text@pub_org@type_text.', array(
+    '@author_text' => $author_text,
+    '@year' => $year,
+    '!link' => $link,
+    '!title' => $title,
+
+		'@translator_text' => $translator_text,
+    '@pub_org' => $pub_org,
+    '@type_text' => '',
+  ));
 
   return $output;
 }
-*/
 
-//
+// pub_parent and pub_in are basically the same, while pub_org is like publisher.
 function theme_faeprofile_publication_chapter($vars) {
 	$output = '';	
 
-	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';
-	$editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). '.' : '';
+	$author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
+	$editor_text = !empty($vars['publication']['editor_text']) ? ', in '. html_entity_decode( strip_tags($vars['publication']['editor_text']) ). ' ed(s)' : '';
   $link = $vars['publication']['pub_uri'];
-  $title = strip_tags($vars['publication']['title']);
+  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
 
-  $pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
-	$pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
-	$pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';	
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
+	$pub_in = !empty($vars['publication']['published_in']) ? ', '. html_entity_decode( $vars['publication']['published_in'] ) : '';
+	$pub_parent = !empty($vars['publication']['parent_title']) ? ', '. html_entity_decode( $vars['publication']['parent_title'] ) : '';	
 
   $year = ' '. $vars['publication']['year'];
-	$page_start_end = !empty($vars['publication']['page_start_end']) ? ' pp. '. $vars['publication']['page_start_end'] : '';
-	$edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
+	$page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
   $type_text = ' '.$vars['publication']['type_text'];
 
-	$output = t('@author_text "<a href="!link">!title</a>".@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@year@page_start_end@edition@type_text', array(
+	$output = t('@author_text@year, \'<a href="!link">!title</a>\'@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@page_start_end@type_text.', array(
     '@author_text' => $author_text,
+		'@year' => $year,
     '!link' => $link,
     '!title' => $title,
 		'@editor_text' => $editor_text,
@@ -747,10 +673,7 @@ function theme_faeprofile_publication_chapter($vars) {
 		'@pub_in' => $pub_in,
     '@pub_org' => $pub_org,
 
-    '@year' => $year,
 		'@page_start_end' => $page_start_end,
-		'@edition' => '',		
-
     '@type_text' => '',
   ));
 
@@ -759,86 +682,38 @@ function theme_faeprofile_publication_chapter($vars) {
 }
 
 
-/*
 //
 function theme_faeprofile_publication_journal($vars) {
 	$output = '';
 
-	$part_head = t('@author_text "<a href="!link">!title</a>". <i>@published_in</i>', array(
-    '!title' => strip_tags($vars['publication']['title']),
-    '@author_text' => !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '',
-    '!link' => $vars['publication']['link'],
-		'@published_in' => !empty($vars['publication']['publication']) ? strip_tags($vars['publication']['publication']). '.' : '',
-    //'@publisher' => !empty($vars['publication']['publisher']) ? $vars['publication']['publisher'] : '',
-  ));
-
-	// Volume or edition
-  if (!empty($vars['publication']['volume'])) {
-    $part_edition = ' Vol. '. $vars['publication']['volume'];
-  }
-  else if (!empty($vars['publication']['edition'])) {
-    $part_edition = ' Vol. '. $vars['publication']['edition'];
-  }
-  else {
-    $part_edition = '';
-  }
-
-	// Issue number
-	if(!empty($vars['publication']['my_issue_num'])) {
-		$part_issue_num = ', Issue '. $vars['publication']['my_issue_num'];
-	}
-	else {
-		$part_issue_num = '';
-	}
-
-	$part_issue = !empty($vars['publication']['issue_num']) ? ' No. '. $vars['publication']['issue_num'] : '';
-	$part_year = t(', @year', array('@year' => $vars['publication']['year']));
-
-	// Page
-  if (!empty($vars['publication']['page_start_end'])) {
-    $page_start_end = t(', pp. @page_start_end', array('@page_start_end' => $vars['publication']['page_start_end']));
-  }
-  else {
-    $page_start_end = '';
-  }
-
-	$type_text = t(' @type_text', array('@type_text' => $vars['publication']['type_text']));
-
-	//test
-	//$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end. $type_text;	
-	$output = $part_head. $part_edition. $part_issue_num. $part_year. $page_start_end;
-
-	return $output;
-}
-*/
-
-//
-function theme_faeprofile_publication_journal($vars) {
-	$output = '';
-
-  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']). '.' : '';
+  $author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
   $link = $vars['publication']['pub_uri'];
-  $title = strip_tags($vars['publication']['title']);
+  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
 
-  $pub_org = !empty($vars['publication']['publish_org']) ? ' '. $vars['publication']['publish_org'] : '';
-  $pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
-  $pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
+  $pub_in = !empty($vars['publication']['published_in']) ? ', '. html_entity_decode( $vars['publication']['published_in'] ) : '';
+  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. html_entity_decode( $vars['publication']['parent_title'] ) : '';
 
   $year = ' '. $vars['publication']['year'];
-  $page_start_end = !empty($vars['publication']['page_start_end']) ? ' pp. '. $vars['publication']['page_start_end'] : '';
-  $edition = !empty($vars['publication']['edition']) ? ' '. $vars['publication']['edition'] : '';
-	$issue_num = !empty($vars['publication']['issue_num']) ? ' '. $vars['publication']['issue_num'] : '';
+  $page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
+  $volume = !empty($vars['publication']['volume']) ? ', vol. '. $vars['publication']['volume'] : '';
+
+	// $issue_num and $issue are basically the same, but many people are using $issue in joseki.
+	$issue_num = !empty($vars['publication']['issue_num']) ? ', no. '. $vars['publication']['issue_num'] : '';
+	$issue = !empty($vars['publication']['issue']) ? ', no. '. $vars['publication']['issue'] : '';	
+
   $type_text = ' '.$vars['publication']['type_text'];
 
-  $output = t('@author_text "<a href="!link">!title</a>".<i>@pub_parent</i><i>@pub_in</i>@pub_org@edition@issue_num@year@page_start_end@type_text', array(
+  $output = t('@author_text@year, \'<a href="!link">!title</a>\'<i>@pub_parent</i><i>@pub_in</i>@volume@issue@issue_num@page_start_end@type_text.', array(
     '@author_text' => $author_text,
     '!link' => $link,
     '!title' => $title,
 
     '@pub_parent' => $pub_parent,
     '@pub_in' => $pub_in,
-    '@pub_org' => '',
-		'@edition' => $edition,
+		'@volume' => $volume,
+
+		'@issue' => $issue,
 		'@issue_num' => $issue_num,
 
     '@year' => $year,
@@ -906,61 +781,6 @@ function template_preprocess_faeprofile_overview(&$vars) {
   }
 }
 
-/**
- * Preprocess functions for faeprofile affiliation.
- */
-/*
-function template_preprocess_faeprofile_affiliations(&$vars) {
-	//test
-	dsm($vars);
-
-  $data = '';
-  $uri = $vars['uri'];
-  $vars['affiliations'] = array();
-  
-  $cache_id = "faeprofile:affiliation:$uri:". md5($uri);
-
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
-	if(!empty($data)) {
-		$vars['affiliations'] = $data;
-	}
-  
-  if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
-  		// We already run sparql and data is within $vars
-  		// We don't run sparql here within this if statement, 
-  		// so uom_fae_api_is_url_reachable is not necessary, but just put it here.
-			$affiliations = $vars['data'];
-			
-			if(!empty($affiliations)) {
-				foreach ($affiliations as $affiliation) {
-					$temp = array(
-						'organisation' => check_plain($affiliation['orgLabel']),
-						'role' => check_plain($affiliation['roleLabel']),
-					);
-					$vars['affiliations'][] = theme('faeprofile_affiliation', array('affiliation' => $temp));
-				}
-			
-				// Cache the data
-				$data = $vars['affiliations'];
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-			}
-			else {
-				// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
-			}
-  	}
- 		else {
- 			// Joseki is down, so get the backup data
-			$vars['affiliations'] = uom_fae_api_custom_cache_get($cache_id);
- 		}
-  }
-  else {
-  	// $data is above. Nothing to do here.
-  }
-}
-*/
 
 function template_preprocess_faeprofile_affiliations(&$vars) {
 	
@@ -1015,81 +835,6 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
 		// $data is above. Nothing to do here.
 	}
 }
-
-/**
- * Preprocess functions for faeprofile publications.
- */
-/* 
-function template_preprocess_faeprofile_publications(&$vars) {
-	$data = '';
-  $uri = $vars['uri'];
-  $vars['year'] = array();
-
-	$cache_id = "faeprofile:pub:$uri:". md5($uri);
-	
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
-	if(!empty($data)) {
-		$vars['year'] = $data;
-	}
-  
-	if(empty($data)) {
-		if(uom_fae_api_is_url_reachable()) {
-			$publications = $vars['data'];
-		
-			if(!empty($publications)) {
-				foreach ($publications as $publication) {
-					$datestamp = strtotime($publication['dateValue']);
-
-					$author_text = _faeprofile_author_text($publication['article']);
-					$editor_text = _faeprofile_editor_text($publication['article']);
-
-					$page_start_end_text = _faeprofile_page_start_end($publication['article']);
-					$type_array = _faeprofile_publication_type($publication['type']);
-
-					$temp = array(
-						'publication' => $publication['publication'], // e.g. published in Journal of Sport History (i.e. journal) 
-						'title' => $publication['title'],
-						'link' => $publication['article'],
-						'type_code' => $type_array['type_code'],
-						'type_text' => $type_array['type_text'],
-						'publisher' => $publication['publishOrg'],
-						'page_start_end' => $page_start_end_text,
-						'edition' => $publication['edition'],
-						'parent' => $publication['parent'],
-						'volume' => $publication['volume'],
-						'issue_num' => $publication['issueNum'],
-						'my_issue_num' => $publication['myIssueNum'],
-						'isbn13' => $publication['isbn13'],
-						'date' => date('Y', $datestamp),
-						'year' => date('Y', $datestamp),
-						'author_text' => $author_text,
-						'editor_text' => $editor_text,
-					);
-
-					$year_index = $temp['year'];
-					$pub_type_index = $temp['type_text'];
-					$link_index = $temp['link'];
-					$vars['year'][$year_index][$pub_type_index][$link_index] = _faeprofile_publication_select_theme($temp);
-				}
-				krsort($vars['year']);
-
-				// Cache and backup
-				$data = $vars['year'];
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-		  }
-		  else {
-		  	// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
-		  }
-		}
-		else {
-			// Joseki is down, so get the backup data
-			$vars['year'] = uom_fae_api_custom_cache_get($cache_id);
-		}
-	}
-}
-*/
 
 
 /**
@@ -1692,7 +1437,7 @@ function faeprofile_ctools_plugin_directory($module, $plugin) {
 /**
  * Implements hook_ctools_plugin_api().
  *
- * If you do this, Ctools will pick up default panels pages in
+  do this, Ctools will pick up default panels pages in
  * <modulename>.pages_default.inc
  */
 function faeprofile_ctools_plugin_api($module, $api) {
@@ -1876,63 +1621,6 @@ function _faeprofile_update_supervisor_status($account) {
   return 1;
 }
 
-/*
-function _faeprofile_author_text($article_uri) {
-  $args = array(
-  	':uri' => $article_uri,
-  );
-  $pub_posis = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_PUB_POSIS, $args);
-
-	//test
-	//$test_pub_uri = 'http://www.findanexpert.unimelb.edu.au/individual/publication149224';
-
-	$tmp_array = array();
-  foreach($pub_posis['rows'] as $row) {
-		// If we get something like:
-    // - Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2
-    // - Skip http://www.findanexpert.unimelb.edu.au/individual/publication772position2N
-    // - We need something like http://www.findanexpert.unimelb.edu.au/individual/publication772position2Y
-    if( !ctype_alpha(substr($row['pubPosi'], -1, 1)) ) {
-      continue;
-    }
-    elseif(substr($row['pubPosi'], -1, 1) !== 'Y') {
-      continue;
-    }
-
-		$tmp_person_link = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_PERSON_LINK, array(':uri' => $row['pubPosi']));
-		// Sometimes a pubPosi won't have a person link, due to someone forgets to put a link there.
-		$person_link = $tmp_person_link['rows'][0]['personLink'];
-
-		if(!empty($person_link)) {
-			$tmp_person_name = _faeprofile_find_person_name_in_drupal($person_link);
-		  if(!empty($tmp_person_name)) {
-		  	$person_name = $tmp_person_name;  
-		  }
-		  else {
-				$tmp_person_label = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL, array(':uri' => $person_link));
-		  	$person_name = _faeprofile_remove_title($tmp_person_label['rows'][0]['personLabel']);
-		  }
-		}
-		else {
-			// No person link, but we can use pubPosi to retrieve personLabel.
-			// It will take a while, but why?
-			$tmp_person_label = uom_fae_api_query(UOM_FAE_PUBLICATION_AUTHOR_NAME_LABEL_1, array(':uri' => $row['pubPosi']));
-			$person_name = _faeprofile_remove_title($tmp_person_label['rows'][0]['personLabel']);
-		}		
-
-		$tmp_array[] = trim($person_name);	
-	}
-
-	$return_string = '';
-  if(count($tmp_array) > 0) {
-    $return_string = implode(', ', $tmp_array);
-  } else {
-
-  }
-
-	return $return_string;
-}
-*/
 
 function _faeprofile_author_text($label_str, $uri_str, $link_str) {
 	$return_str = '';
@@ -1947,7 +1635,7 @@ function _faeprofile_author_text($label_str, $uri_str, $link_str) {
 	foreach($labels as $label) {
 		// Prepare
 		$posi_num = _faeprofile_get_pub_posi_num($uris[$i]);
-		$new_label = _faeprofile_get_internal_label($label, $links[$i]);
+		$new_label = trim(_faeprofile_get_internal_label($label, $links[$i]));
 
 		$output[$i] = array(
 			'label' => $new_label,
@@ -1961,7 +1649,7 @@ function _faeprofile_author_text($label_str, $uri_str, $link_str) {
 		dsm($new_label);
 		dsm($links[$i]);
 		dsm('end');
-		*/		
+		*/
 
 		++$i;
 	}
@@ -1995,7 +1683,13 @@ function _faeprofile_get_internal_label($label='', $link='') {
 		$new_label = $label;
 	}
 	else {
-		$new_label = _faeprofile_find_person_name_in_drupal($link);
+		$tmp_label = _faeprofile_find_person_name_in_drupal($link);
+		if(empty($tmp_label)) {
+			$new_label = $label;
+		}
+		else {
+			$new_label = $tmp_label;
+		}
 	}
 	
 	return $new_label;
@@ -2010,45 +1704,6 @@ function _faeprofile_get_pub_posi_num($uri) {
 	$num = $matches[1];
 	return $num;	
 }
-
-/*
-function _faeprofile_editor_text($article_uri) {
-	$output = '';
-
-	$editor_names = array();	
-	$editor_name = '';
-	$i = 1;
-	// Be ware of infinite loop
-	while(1) {
-		$editor_uri = $article_uri. 'position'. $i. 'N';
-
-		$args = array(
-    	':uri' => $editor_uri,
-    );
-    $result = uom_fae_api_query(UOM_FAE_PUBLICATION_EDITOR_NAME, $args);
-		$editor_name = $result['rows'][0]['editorName'];
-
-		if(empty($editor_name)) {
-    	break;
-		}
-		else {
-			$person_name = _faeprofile_remove_title($editor_name);
-			$editor_names[] = trim($person_name);
-		}
-
-		++$i;
-	}
-
-	if(count($editor_names) >= 1) {
-		$output = implode(', ', $editor_names);	
-	}
-	else {
-		$output = '';
-	}
-
-	return $output;
-}
-*/
 
 
 function _faeprofile_editor_text($label_str, $uri_str, $link_str) {
@@ -2068,7 +1723,7 @@ function _faeprofile_editor_text($label_str, $uri_str, $link_str) {
     	$posi_num = _faeprofile_get_pub_posi_num($uris[$i]);
 
     	$output[$i] = array(
-      	'label' => $label,
+      	'label' => trim($label),
       	'posi_num' => $posi_num,
     	);
     	++$i;
@@ -2119,39 +1774,6 @@ function _faeprofile_person_text($label_str, $uri_str) {
 
   return $return_str;
 }
-
-
-/*
-function _faeprofile_page_start_end($article_uri) {
-	$output = '';	
-
-  $args = array(
-    ':uri' => $article_uri,
-  );
-  $result = uom_fae_api_query(UOM_FAE_PUBLICATION_PAGE_START_END, $args);
-
-	if(count($result['rows']) > 0) {
-  	$tmp_array = array();
-  	foreach($result['rows'] as $row) {
- 			$page_start = $row['pageStart'];
-			$page_end = $row['pageEnd'];
-
-			if(!empty($page_start) && !empty($page_end)) {
-				$output .= $page_start. '-'. $page_end. ', ';
-			}
-			else {
-				$output .= $page_start. $page_end. ', ';
-			}
-		}
-		$output = substr($output, 0, -2);	
-	}
-	else {
-		$output = '';
-	}
-
-	return $output;
-}
-*/
 
 
 function _faeprofile_page_start_end($page_start='', $page_end='') {
@@ -2210,9 +1832,13 @@ function _faeprofile_publication_select_theme($pub) {
 		'A1', // 'A1'  => t('Authored Research Book'),
     'A2', // 'A2'  => t('Edited Book'),
     'A3', // 'A3'  => t('Revision/New Edition'),
-    'A4', // 'A4'  => t('Translated Book'),
     'A5', // 'A5'  => t('Text Book'),
     'A6', // 'A6'  => t('Authored Book (Other)'),
+	);
+
+	// Translated book
+	$translated_book_array = array(
+		'A4' // 'A4'  => t('Translated Book'),
 	);
 
 	// You are doing chapters only
@@ -2229,14 +1855,16 @@ function _faeprofile_publication_select_theme($pub) {
     'C2', // 'C2'  => t('Article in unrefereed journal (including articles in professional journals)'),
 		'C3', // 'C3'  => t('Unrefereed Letter or Note'),
     'C5', // 'C5'  => t('Other refereed contribution to a refereed journal'),
-
-		// Hack use the journal format for now
-		'D4', // Major reference works
-		'F1', // Full written papers refereed
-		'F2', // Full written papers unrefereed	
   );
 
-	
+	/*
+	// Reference
+	$reference_array(
+		'D4', // Major reference works
+    'F1', // Full written papers refereed
+    'F2', // Full written papers unrefereed
+	);
+	*/	
 
 	// Type code
 	$type_code = $pub['type_code'];
@@ -2245,6 +1873,10 @@ function _faeprofile_publication_select_theme($pub) {
 	if(in_array($type_code, $whole_book_array)) {
 		// Whole book
 		$output = theme('faeprofile_publication_whole_book', array('publication' => $pub));			
+	}
+	else if(in_array($type_code, $translated_book_array)) {
+		// Translated book
+		$output = theme('faeprofile_publication_translated_book', array('publication' => $pub));		
 	}
   else if(in_array($type_code, $chapter_array)) {
   	// Chapter  
