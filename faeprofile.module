@@ -548,14 +548,14 @@ function theme_faeprofile_affiliation($vars) {
 function theme_faeprofile_publication_default($vars) {
 	$output = '';
 
-  $author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
-  $editor_text = !empty($vars['publication']['editor_text']) ? ', in '. html_entity_decode( strip_tags($vars['publication']['editor_text']) ). ' ed(s)' : '';
+  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
+  $editor_text = !empty($vars['publication']['editor_text']) ? ', in '. strip_tags($vars['publication']['editor_text']). ' ed(s)' : '';
   $link = $vars['publication']['pub_uri'];
-  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
+  $title = strip_tags($vars['publication']['title']);
 
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
-  $pub_in = !empty($vars['publication']['published_in']) ? ', '. html_entity_decode( $vars['publication']['published_in'] ) : '';
-  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. html_entity_decode( $vars['publication']['parent_title'] ) : '';
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
+  $pub_in = !empty($vars['publication']['published_in']) ? ', '. $vars['publication']['published_in'] : '';
+  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. $vars['publication']['parent_title'] : '';
 
   $year = ' '. $vars['publication']['year'];
   $page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
@@ -596,10 +596,10 @@ function theme_faeprofile_publication_default($vars) {
 function theme_faeprofile_publication_whole_book($vars) {
   $output = '';
   
-  $author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : ''; 
+  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : ''; 
   $link = $vars['publication']['pub_uri'];  
-  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
+  $title = strip_tags($vars['publication']['title']);
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
 
   $year = ' '. $vars['publication']['year'];
   $type_text = ' '.$vars['publication']['type_text']; 
@@ -621,12 +621,12 @@ function theme_faeprofile_publication_translated_book($vars) {
   $output = '';
 
 	//
-	$author_text = !empty($vars['publication']['editor_text']) ? html_entity_decode( strip_tags($vars['publication']['editor_text']) ). ' ' : ''; 
-  $translator_text = !empty($vars['publication']['author_text']) ? ', trans '. html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
+	$author_text = !empty($vars['publication']['editor_text']) ? strip_tags($vars['publication']['editor_text']). ' ' : ''; 
+  $translator_text = !empty($vars['publication']['author_text']) ? ', trans '. strip_tags($vars['publication']['author_text']) : '';
 
   $link = $vars['publication']['pub_uri'];
-  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
+  $title = strip_tags($vars['publication']['title']);
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
 
   $year = $vars['publication']['year'];
   $type_text = ' '.$vars['publication']['type_text'];
@@ -649,14 +649,14 @@ function theme_faeprofile_publication_translated_book($vars) {
 function theme_faeprofile_publication_chapter($vars) {
 	$output = '';	
 
-	$author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
-	$editor_text = !empty($vars['publication']['editor_text']) ? ', in '. html_entity_decode( strip_tags($vars['publication']['editor_text']) ). ' ed(s)' : '';
+	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
+	$editor_text = !empty($vars['publication']['editor_text']) ? ', in '. strip_tags($vars['publication']['editor_text']). ' ed(s)' : '';
   $link = $vars['publication']['pub_uri'];
-  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
+  $title = strip_tags($vars['publication']['title']);
 
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
-	$pub_in = !empty($vars['publication']['published_in']) ? ', '. html_entity_decode( $vars['publication']['published_in'] ) : '';
-	$pub_parent = !empty($vars['publication']['parent_title']) ? ', '. html_entity_decode( $vars['publication']['parent_title'] ) : '';	
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
+	$pub_in = !empty($vars['publication']['published_in']) ? ', '. $vars['publication']['published_in'] : '';
+	$pub_parent = !empty($vars['publication']['parent_title']) ? ', '. $vars['publication']['parent_title'] : '';	
 
   $year = ' '. $vars['publication']['year'];
 	$page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
@@ -686,13 +686,13 @@ function theme_faeprofile_publication_chapter($vars) {
 function theme_faeprofile_publication_journal($vars) {
 	$output = '';
 
-  $author_text = !empty($vars['publication']['author_text']) ? html_entity_decode( strip_tags($vars['publication']['author_text']) ) : '';
+  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
   $link = $vars['publication']['pub_uri'];
-  $title = html_entity_decode( strip_tags($vars['publication']['title']) );
+  $title = strip_tags($vars['publication']['title']);
 
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. html_entity_decode( $vars['publication']['publish_org'] ) : '';
-  $pub_in = !empty($vars['publication']['published_in']) ? ', '. html_entity_decode( $vars['publication']['published_in'] ) : '';
-  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. html_entity_decode( $vars['publication']['parent_title'] ) : '';
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
+  $pub_in = !empty($vars['publication']['published_in']) ? ', '. $vars['publication']['published_in'] : '';
+  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. $vars['publication']['parent_title'] : '';
 
   $year = ' '. $vars['publication']['year'];
   $page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
