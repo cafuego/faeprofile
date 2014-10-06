@@ -549,8 +549,8 @@ function theme_faeprofile_publication_default($vars) {
 	$output = '';
 
   $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
-  $editor_text = !empty($vars['publication']['editor_text']) ? ', in '. strip_tags($vars['publication']['editor_text']). ' ed(s)' : '';
-  $link = $vars['publication']['pub_uri'];
+  $editor_text = !empty($vars['publication']['editor_text']) ? ', '. strip_tags($vars['publication']['editor_text']). ' ed(s)' : '';
+	$link = $vars['publication']['pub_uri'];
   $title = strip_tags($vars['publication']['title']);
 
   $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
@@ -647,22 +647,23 @@ function theme_faeprofile_publication_translated_book($vars) {
 
 // pub_parent and pub_in are basically the same, while pub_org is like publisher.
 function theme_faeprofile_publication_chapter($vars) {
+	/*
 	$output = '';	
 
 	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
-	$editor_text = !empty($vars['publication']['editor_text']) ? ', in '. strip_tags($vars['publication']['editor_text']). ' ed(s)' : '';
+	$editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). ' ed(s),' : '';
   $link = $vars['publication']['pub_uri'];
   $title = strip_tags($vars['publication']['title']);
 
   $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
-	$pub_in = !empty($vars['publication']['published_in']) ? ', '. $vars['publication']['published_in'] : '';
-	$pub_parent = !empty($vars['publication']['parent_title']) ? ', '. $vars['publication']['parent_title'] : '';	
+	$pub_in = !empty($vars['publication']['published_in']) ? ' '. $vars['publication']['published_in'] : '';
+	$pub_parent = !empty($vars['publication']['parent_title']) ? ' '. $vars['publication']['parent_title'] : '';	
 
   $year = ' '. $vars['publication']['year'];
 	$page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
   $type_text = ' '.$vars['publication']['type_text'];
 
-	$output = t('@author_text@year, \'<a href="!link">!title</a>\'@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@page_start_end@type_text.', array(
+	$output = t('@author_text@year, \'<a href="!link">!title</a>\', in@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@page_start_end@type_text.', array(
     '@author_text' => $author_text,
 		'@year' => $year,
     '!link' => $link,
@@ -676,7 +677,38 @@ function theme_faeprofile_publication_chapter($vars) {
 		'@page_start_end' => $page_start_end,
     '@type_text' => '',
   ));
+	*/
 
+	$output = '';
+
+	$author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
+	$year = $vars['publication']['year'];
+
+	$link = $vars['publication']['pub_uri'];
+	$title = strip_tags($vars['publication']['title']);
+	$out_url = '<a href="'. $link. '">'. $title. '</a>';
+	
+	$editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). ' ed(s),' : '';
+
+	if (!empty($vars['publication']['parent_title'])) {
+		$out_pub_parent = ' '. '<i>'. $vars['publication']['parent_title']. '</i>'; 
+	} 
+	elseif (!empty($vars['publication']['published_in'])) {
+		$out_pub_parent = ' '. '<i>'. $vars['publication']['published_in']. '</i>';
+	}
+	else {
+		// It is not likely empty.
+		$out_pub_parent = '';
+	}
+
+	$pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
+
+	$page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
+  $type_text = ' '.$vars['publication']['type_text'];
+	
+
+	// Output
+	$output = $author_text. ' '. $year. ', '. $out_url. ', in'. $editor_text. $out_pub_parent. $pub_org. $page_start_end; 
 
 	return $output;
 }
