@@ -113,6 +113,14 @@ function faeprofile_menu() {
     'type' => MENU_CALLBACK,
   );
 
+	// Clean a find an expert profile
+	$items['admin/config/people/faeprofile/clean_cache'] = array(
+    'title' => t('Clean a find an expert profile'),
+    'page callback' => 'faeprofile_clean_cache',
+    'access arguments' => array('administer faeprofile'),
+    'type' => MENU_CALLBACK,
+  );	
+
   return $items;
 }
 
@@ -1560,6 +1568,58 @@ function faeprofile_supervision_update() {
   // Go back to the faeprofile admin page when done.
   batch_process('admin/config/people/faeprofile');
 }
+
+// Clean a find an expert profile
+function faeprofile_clean_cache() {
+	// I expect faeprofile_clean_cache_input is like 
+	// http://www.findanexpert.unimelb.edu.au/individual/person16492|http://www.findanexpert.unimelb.edu.au/individual/person12345|http://www.findanexpert.unimelb.edu.au/individual/person4321
+  $input = variable_get('faeprofile_clean_cache_input', '');
+	$items = explode("|", $input);
+
+	$table_name = 'fae_profile_custom_cache';
+	foreach($items as $item) {
+		// No need to escape uri
+		$uri = trim($item);
+
+		if(_faeprofile_is_fae_uri($uri)) {
+			$sql = "
+    		DELETE FROM
+     			$table_name 
+    		WHERE
+      		cache_id REGEXP '$uri'
+  		";
+
+			// Notice
+			$msg = "Clean find an expert cache for $uri";
+			dsm($msg);
+
+			db_query($sql);
+		}
+		else {
+			// Notice
+			$msg = "Not a proper find an expert uri: $uri";
+			dsm($msg);
+		}
+	}
+
+  $url = 'admin/config/people/faeprofile';
+  drupal_goto($url);
+}
+
+
+function _faeprofile_is_fae_uri($uri) {
+	$condi = false;
+	$pattern = "/^http:\/\/www\.findanexpert\.unimelb\.edu\.au\/individual\/person[0-9]+$/i";
+  if(preg_match($pattern, $uri)) {
+		$condi = true;
+	}
+	else {
+		$condi = false;
+	}
+
+	return $condi;
+}
+
 
 /**
  * Auto assign supervision status for each user. This funtion is called

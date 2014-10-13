@@ -23,9 +23,28 @@ function faeprofile_settings_form() {
     '#type' => 'checkbox',
     '#default_value' => (variable_get('faeprofile_cron', 0) == 0) ? 0 : 1,
   );
+
   $form['cron']['faeprofile_sync'] = array(
-    '#markup' => '<a class="button" href="' . url('admin/config/people/faeprofile/update') . '">' . t('Synchronise now') . '</a>',
+    '#markup' => '<a class="button" href="' . url('admin/config/people/faeprofile/update') . '">' . t('Synchronise now') . '</a><br/><br/>',
   );
+
+	$msg = "
+		<ul>
+			<li>1. For multiple profiles, input something like http://www.findanexpert.unimelb.edu.au/individual/person14903|http://www.findanexpert.unimelb.edu.au/individual/person15416</li>
+			<li>2. Need to press 'Save configuration' first, because Drupal needs to remember the setting, then 'Clean profiles'.</li>
+		</ul>
+	";
+  $form['cron']['faeprofile_clean_cache_input'] = array(
+    '#title' => t('Input find an expert profile uris'),
+    '#description' => t($msg),
+    '#type' => 'textfield',
+		'#default_value' => variable_get('faeprofile_clean_cache_input', ''), 
+  );
+
+  $form['cron']['faeprofile_clean_cache'] = array(
+    '#markup' => '<a class="button" href="' . url('admin/config/people/faeprofile/clean_cache') . '">' . t('Clean profiles') . '</a>',
+  );
+
 
   $form['faeprofile_main'] = array(
     '#title' => t('Replace main profile tab with <em>Overview</em> from Find an Expert.'),
