@@ -906,7 +906,6 @@ function template_preprocess_faeprofile_publications(&$vars) {
 					$author_text = _faeprofile_author_text($pub['the_author_label'], $pub['authors'], $pub['the_author_links']);
 					$editor_text = _faeprofile_editor_text($pub['the_editor_label'], $pub['editors'], $pub['the_editor_links']);
 			
-
 					// Actual data
 					$temp = array(
 						'title' => $pub['the_title'],
@@ -1719,9 +1718,11 @@ function _faeprofile_author_text($label_str, $uri_str, $link_str) {
 	$output = array();
 
 	// These always matching up for authors
-	$labels = explode('|', $label_str);
-	$uris = explode('|', $uri_str);
-	$links = explode('|', $link_str);	
+	$tmp_labels = explode('|', $label_str);
+	$tmp_uris = explode('|', $uri_str);
+	$tmp_links = explode('|', $link_str);	
+
+	_faeprofile_filter_author_text($tmp_labels, $tmp_uris, $tmp_links, $labels, $uris, $links);
 
 	$i = 0;
 	foreach($labels as $label) {
@@ -1733,15 +1734,6 @@ function _faeprofile_author_text($label_str, $uri_str, $link_str) {
 			'label' => $new_label,
 			'posi_num' => $posi_num, 
 		);
-
-		//test
-		/*
-		dsm('start');
-		dsm($label);
-		dsm($new_label);
-		dsm($links[$i]);
-		dsm('end');
-		*/
 
 		++$i;
 	}
@@ -1806,8 +1798,10 @@ function _faeprofile_editor_text($label_str, $uri_str, $link_str) {
 
 	}
 	else {
-		$labels = explode('|', $label_str);
-		$uris = explode('|', $uri_str);
+		$tmp_labels = explode('|', $label_str);
+		$tmp_uris = explode('|', $uri_str);
+
+		_faeprofile_filter_editor_text($tmp_labels, $tmp_uris, $labels, $uris);
 
 		$i = 0;
   	foreach($labels as $label) {
@@ -1865,6 +1859,46 @@ function _faeprofile_person_text($label_str, $uri_str) {
   }
 
   return $return_str;
+}
+
+
+function _faeprofile_filter_author_text($tmp_labels, $tmp_uris, $tmp_links, &$labels, &$uris, &$links) {
+	$labels = array();
+	$uris = array();
+	$links = array();
+
+	$i = 0;
+	foreach($tmp_labels as $tmp_label) {
+		if(!in_array($tmp_label, $labels)) {
+			// Label
+			$labels[] = $tmp_label;
+			
+			// Uri
+			$uris[] = $tmp_uris[$i];
+			
+			// Link
+			$links[] = $tmp_links[$i];
+		}
+		++$i;
+	}
+}
+
+
+function _faeprofile_filter_editor_text($tmp_labels, $tmp_uris, &$labels, &$uris) {
+  $labels = array();
+  $uris = array();
+
+	$i = 0;
+  foreach($tmp_labels as $tmp_label) {
+    if(!in_array($tmp_label, $labels)) {
+      // Label
+      $labels[] = $tmp_label;
+
+      // Uri
+      $uris[] = $tmp_uris[$i];
+    }
+    ++$i;
+  }
 }
 
 
