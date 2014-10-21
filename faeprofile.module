@@ -554,6 +554,7 @@ function theme_faeprofile_affiliation($vars) {
 
 /*
 function theme_faeprofile_publication_default($vars) {
+	/*
 	$output = '';
 
   $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
@@ -577,7 +578,7 @@ function theme_faeprofile_publication_default($vars) {
 
   $type_text = ' '.$vars['publication']['type_text'];
 
-  $output = t('@author_text@year \'<a href="!link">!title</a>\'@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@volume@issue@issue_num@edition@page_start_end@type_text.', array(
+  $output = t('test: @author_text@year \'<a href="!link">!title</a>\'@editor_text<i>@pub_parent</i><i>@pub_in</i>@pub_org@volume@issue@issue_num@edition@page_start_end@type_text.', array(
     '@author_text' => $author_text,
 		'@year' => $year,
     '!link' => $link,
@@ -598,6 +599,48 @@ function theme_faeprofile_publication_default($vars) {
   ));
 
 	return $output;
+	*/
+
+
+	$output = '';
+
+  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
+  $year = $vars['publication']['year'];
+
+  $link = $vars['publication']['pub_uri'];
+  $title = strip_tags($vars['publication']['title']);
+  $out_url = '<a href="'. $link. '">'. $title. '</a>';
+
+  $editor_text = !empty($vars['publication']['editor_text']) ? ' '. strip_tags($vars['publication']['editor_text']). ' ed(s),' : '';
+
+  if (!empty($vars['publication']['parent_title'])) {
+    $out_pub_parent = ' '. '<i>'. $vars['publication']['parent_title']. '</i>';
+  }
+  elseif (!empty($vars['publication']['published_in'])) {
+    $out_pub_parent = ' '. '<i>'. $vars['publication']['published_in']. '</i>';
+  }
+  else {
+    // It is not likely empty.
+    $out_pub_parent = '';
+  }
+
+  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
+
+	$volume = !empty($vars['publication']['volume']) ? ', vol. '. $vars['publication']['volume'] : '';
+
+  // $issue_num and $issue are basically the same, but many people are using $issue in joseki.
+  $issue_num = !empty($vars['publication']['issue_num']) ? ', no. '. $vars['publication']['issue_num'] : '';
+  $issue = !empty($vars['publication']['issue']) ? ', no. '. $vars['publication']['issue'] : '';
+  $edition = !empty($vars['publication']['edition']) ? ', '. $vars['publication']['edition'] : '';
+
+	$page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
+	$type_text = ' '.$vars['publication']['type_text'];
+
+
+  // Output
+  $output = $author_text. ' '. $year. ', '. $out_url. ', in'. $editor_text. $out_pub_parent. $pub_org. $volume. $issue. $issue_num. $edition. $page_start_end;
+
+  return $output;
 }
 */
 
