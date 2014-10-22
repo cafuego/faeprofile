@@ -841,7 +841,9 @@ function template_preprocess_faeprofile_overview(&$vars) {
   }
 
   if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
+  	//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
 			$overview = $vars['data'];
 			
 			if(empty($overview) || $overview == 'Empty') {
@@ -885,7 +887,9 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
   }
 
 	if(empty($data)) {
-		if(uom_fae_api_is_url_reachable()) {
+		//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
       // We already run sparql and data is within $vars
       // We don't run sparql here within this if statement, 
       // so uom_fae_api_is_url_reachable is not necessary, but just put it here.
@@ -942,7 +946,9 @@ function template_preprocess_faeprofile_publications(&$vars) {
 	}
 
 	if(empty($data)) {
-		if(uom_fae_api_is_url_reachable()) {
+		//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
       $pubs = $vars['data'];
 
 			if(!empty($pubs)) {
@@ -1035,7 +1041,9 @@ function template_preprocess_faeprofile_research(&$vars) {
 	}
   
   if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
+  	//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
   		// Grant
   		// $vars doesn't contain extra_grant_text
   		$research = $vars['data'];
@@ -1107,7 +1115,9 @@ function template_preprocess_faeprofile_awards(&$vars) {
 	}
 	
 	if(empty($data)) {
-		if(uom_fae_api_is_url_reachable()) {
+		//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
 			$awards = $vars['data'];
 			
 			if(!empty($awards)) {
@@ -1169,7 +1179,9 @@ function template_preprocess_faeprofile_linkages(&$vars) {
 	}
   
   if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
+  	//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
 			$linkages = $vars['data'];
 			if(!empty($linkages)) {
 				foreach ($linkages as $linkage) {
@@ -1214,7 +1226,9 @@ function template_preprocess_faeprofile_supervision(&$vars) {
 	}
   
   if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
+  	//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
   		$supervision = $vars['data'];
   		if(!empty($supervision)) {
   			$vars['available'] = theme('faeprofile_supervisor', array('available' => $supervision['supervisor']));
@@ -1266,7 +1280,9 @@ function template_preprocess_faeprofile_contact(&$vars) {
   }
   
   if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
+  	//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
   		$contact = $vars['data'];
   		
   		if(!empty($contact)) {
@@ -1337,7 +1353,9 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
 	}
   
   if(empty($data)) {
-  	if(uom_fae_api_is_url_reachable()) {
+  	//if(uom_fae_api_is_url_reachable()) {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+    if($uom_fae_api_is_url_reachable) {
 			$qualifications = $vars['data'];
 			if(!empty($qualifications)) {
 				foreach ($qualifications as $qualification) {
