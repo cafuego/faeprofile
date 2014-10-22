@@ -595,31 +595,6 @@ function theme_faeprofile_publication_default($vars) {
   return $output;
 }
 
-/*
-function theme_faeprofile_publication_whole_book($vars) {
-  $output = '';
-  
-  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : ''; 
-  $link = $vars['publication']['pub_uri'];  
-  $title = strip_tags($vars['publication']['title']);
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
-
-  $year = ' '. $vars['publication']['year'];
-  $type_text = ' '.$vars['publication']['type_text']; 
-
-  $output = t('@author_text@year, <i><a href="!link">!title</a></i>@pub_org@type_text.', array(
-    '@author_text' => $author_text,
-		'@year' => $year,
-    '!link' => $link,
-    '!title' => $title,
-    '@pub_org' => $pub_org,
-    '@type_text' => '',
-  ));
-
-  return $output;
-}
-*/
-
 
 function theme_faeprofile_publication_whole_book($vars) {
 	$output = '';
@@ -640,37 +615,6 @@ function theme_faeprofile_publication_whole_book($vars) {
 
 	return $output;
 }
-
-
-/*
-function theme_faeprofile_publication_translated_book($vars) {
-  $output = '';
-
-	//
-	$author_text = !empty($vars['publication']['editor_text']) ? strip_tags($vars['publication']['editor_text']). ' ' : ''; 
-  $translator_text = !empty($vars['publication']['author_text']) ? ', trans '. strip_tags($vars['publication']['author_text']) : '';
-
-  $link = $vars['publication']['pub_uri'];
-  $title = strip_tags($vars['publication']['title']);
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
-
-  $year = $vars['publication']['year'];
-  $type_text = ' '.$vars['publication']['type_text'];
-
-  $output = t('@author_text@year, <i><a href="!link">!title</a></i>@translator_text@pub_org@type_text.', array(
-    '@author_text' => $author_text,
-    '@year' => $year,
-    '!link' => $link,
-    '!title' => $title,
-
-		'@translator_text' => $translator_text,
-    '@pub_org' => $pub_org,
-    '@type_text' => '',
-  ));
-
-  return $output;
-}
-*/
 
 
 function theme_faeprofile_publication_translated_book($vars) {
@@ -731,50 +675,6 @@ function theme_faeprofile_publication_chapter($vars) {
 	return $output;
 }
 
-
-/*
-function theme_faeprofile_publication_journal($vars) {
-	$output = '';
-
-  $author_text = !empty($vars['publication']['author_text']) ? strip_tags($vars['publication']['author_text']) : '';
-  $link = $vars['publication']['pub_uri'];
-  $title = strip_tags($vars['publication']['title']);
-
-  $pub_org = !empty($vars['publication']['publish_org']) ? ', '. $vars['publication']['publish_org'] : '';
-  $pub_in = !empty($vars['publication']['published_in']) ? ', '. $vars['publication']['published_in'] : '';
-  $pub_parent = !empty($vars['publication']['parent_title']) ? ', '. $vars['publication']['parent_title'] : '';
-
-  $year = ' '. $vars['publication']['year'];
-  $page_start_end = !empty($vars['publication']['page_start_end']) ? ', pp. '. $vars['publication']['page_start_end'] : '';
-  $volume = !empty($vars['publication']['volume']) ? ', vol. '. $vars['publication']['volume'] : '';
-
-	// $issue_num and $issue are basically the same, but many people are using $issue in joseki.
-	$issue_num = !empty($vars['publication']['issue_num']) ? ', no. '. $vars['publication']['issue_num'] : '';
-	$issue = !empty($vars['publication']['issue']) ? ', issue '. $vars['publication']['issue'] : '';	
-
-  $type_text = ' '.$vars['publication']['type_text'];
-
-  $output = t('@author_text@year, \'<a href="!link">!title</a>\'<i>@pub_parent</i><i>@pub_in</i>@volume@issue@issue_num@page_start_end@type_text.', array(
-    '@author_text' => $author_text,
-    '!link' => $link,
-    '!title' => $title,
-
-    '@pub_parent' => $pub_parent,
-    '@pub_in' => $pub_in,
-		'@volume' => $volume,
-
-		'@issue' => $issue,
-		'@issue_num' => $issue_num,
-
-    '@year' => $year,
-    '@page_start_end' => $page_start_end,
-
-    '@type_text' => '',
-  ));
-
-	return $output;
-}
-*/
 
 function theme_faeprofile_publication_journal($vars) {
 	$output = '';
