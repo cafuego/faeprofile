@@ -1541,7 +1541,7 @@ function faeprofile_clean_cache() {
 	// http://www.findanexpert.unimelb.edu.au/individual/person16492|http://www.findanexpert.unimelb.edu.au/individual/person12345|http://www.findanexpert.unimelb.edu.au/individual/person4321
   $input = variable_get('faeprofile_clean_cache_input', '');
 	$items = explode("|", $input);
-
+	
 	$table_name = 'fae_profile_custom_cache';
 	foreach($items as $item) {
 		// No need to escape uri
