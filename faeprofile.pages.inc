@@ -89,9 +89,9 @@ function faeprofile_page_research($account, $page = TRUE) {
   }
 
   $uri = $account->field_fae_resource['und'][0]['url'];
-  $research = uom_fae_api_person_research($uri);
+  $data = uom_fae_api_person_research($uri);
 
-  return theme('faeprofile_research', array('data' => $research, 'uri' => $uri));
+  return theme('faeprofile_research', array('grant' => $data['grant'], 'contract' => $data['contract'], 'uri' => $uri));
 }
 
 /**
