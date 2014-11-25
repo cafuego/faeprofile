@@ -223,6 +223,7 @@ function faeprofile_user_presave(&$edit, $account, $category) {
 
   // Load the supervisor status from FaE and set a flag on the user.
   if (!empty($account->field_fae_resource[LANGUAGE_NONE][0]['url'])) {
+		// NOTE: clean the find an expert cache, before this presave, because uom_fae_api_person_supervision always return cache data.
     $supervision = uom_fae_api_person_supervision($account->field_fae_resource[LANGUAGE_NONE][0]['url']);
     $edit['field_person_supervision']['und'][0]['value'] = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
   }
@@ -1723,6 +1724,7 @@ function _faeprofile_update_supervisor_status($account) {
     return 0;
   }
 
+	// NOTE: clean the find an expert cache, before this presave, because uom_fae_api_person_supervision always return cache data.
   $supervision = uom_fae_api_person_supervision($account->field_fae_resource[LANGUAGE_NONE][0]['url']);
   $supervision_status = (!empty($supervision) && $supervision['supervisor'] == 'Y') ? 1 : 0;
   user_save($account, $edit = array('field_person_supervision', $supervision_status));

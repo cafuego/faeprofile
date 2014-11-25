@@ -12,7 +12,7 @@ function faeprofile_settings_form() {
   $form['cron'] = array(
     '#type' => 'fieldset',
     '#title' => t('Synchronisation'),
-    '#description' => t('Synchronise supervisor status.'),
+    '#description' => t('Synchronise supervisor status. (Empty Find an Expert cache before synchronising!)'),
     '#collapsible' => TRUE,
     '#weight' => 1,
   );
