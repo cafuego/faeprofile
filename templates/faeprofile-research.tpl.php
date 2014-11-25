@@ -10,7 +10,7 @@
 ?>
 
 <?php $year = $contract['year']; ?>
-<?php if(count($year) > 0): ?>
+<?php if(isset($year) && is_array($year) && count($year) > 0): ?>
   <h3>Contract information</h3>
   <?php foreach($year as $each_year_key => $each_year): ?>
     <?php
@@ -33,7 +33,7 @@
 
 <p>&nbsp;</p>
 <?php $year = $grant['year']; ?>
-<?php if(count($year) > 0): ?>
+<?php if(isset($year) && is_array($year) && count($year) > 0): ?>
 	<h3>Grant information</h3>
 	<?php foreach($year as $each_year_key => $each_year): ?>
 		<?php
