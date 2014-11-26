@@ -31,9 +31,9 @@
 <?php endif; ?>
 
 
-<p>&nbsp;</p>
 <?php $year = $grant['year']; ?>
 <?php if(isset($year) && is_array($year) && count($year) > 0): ?>
+	<p>&nbsp;</p>
 	<h3>Grant information</h3>
 	<?php foreach($year as $each_year_key => $each_year): ?>
 		<?php
