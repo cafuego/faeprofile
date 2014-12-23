@@ -796,6 +796,7 @@ function template_preprocess_faeprofile_overview(&$vars) {
 				// So we maunally make a copy of clean data
 				//uom_fae_api_cache_and_backup($cache_id, $data);
 				uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
 			}
   	}
   	else {
@@ -849,6 +850,7 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
         // Cache the data
         $data = $vars['affiliations'];
         uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
       }
       else {
         // Clear cache only
@@ -935,7 +937,7 @@ function template_preprocess_faeprofile_publications(&$vars) {
 				// Cache
         $data = $vars['year'];
         uom_fae_api_profile_custom_cache_set($cache_id, $data);
-	
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
 			} // End if
 			else {
 				// Clear cache only
@@ -953,7 +955,8 @@ function template_preprocess_faeprofile_publications(&$vars) {
 
 /**
  * Preprocess functions for faeprofile research.
- */ 
+ */
+/* 
 function template_preprocess_faeprofile_research(&$vars) {
 	$data = '';
 	$uri = $vars['uri'];
@@ -1046,7 +1049,132 @@ function template_preprocess_faeprofile_research(&$vars) {
 		}
 	
 	}
+}
+*/
+
+/**
+ * Preprocess functions for faeprofile research.
+ */
+function template_preprocess_faeprofile_research(&$vars) {
+	$data = '';
+  $uri = $vars['uri'];
 	
+	// Start work on grants ---------------
+	$tmp_array = array();
+	$cache_id = "faeprofile:research:$uri:". md5($uri);
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+
+	if(!empty($data)) { 
+    $vars['grant']['year'] = $data['grant']['year'];
+    $vars['grant']['extra_grant_text'] = $data['grant']['extra_grant_text'];
+  }	
+	else {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+		if($uom_fae_api_is_url_reachable) {
+			$grants = $vars['grant'];
+			if(!empty($grants)) {
+				foreach ($grants as $item) {
+          $startstamp = strtotime($item['dateStart']);
+          $endstamp = strtotime($item['dateEnd']);
+
+          $tmp_array['grant'][] = array(
+            'grant' => $item['grantLabel'],
+            'link' => $item['grant'],
+            'scheme' => $item['grantScheme'],
+            'role' => $item['roleLabel'],
+            'organisation' => $item['orgLabel'],
+            'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
+            'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
+          );
+        }
+			}
+			else {
+				$tmp_array['grant'] = array();
+			}
+
+			// Do some grouping of research grants.
+      $vars['grant']['year'] = array();
+      foreach($tmp_array['grant'] as $item) {
+        $vars['grant']['year'][$item['start']][] = theme('faeprofile_grant', array('grant' => $item));
+      }
+
+      krsort($vars['grant']['year']);
+
+      // Extra grant
+      $vars['grant']['extra_grant_text'] = array();
+      $extra_grant_text = _faeprofile_extra_grant($uri);
+      if(!empty($extra_grant_text)) {
+        $vars['grant']['extra_grant_text'] = $extra_grant_text;
+      }
+
+			// Cache
+      $data = $vars['grant'];
+      uom_fae_api_profile_custom_cache_set($cache_id, $data);
+      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+		}
+		else {
+			// Joseki is down, so get the backup data
+      $vars['grant'] = uom_fae_api_custom_cache_get($cache_id);
+		}
+	}
+	// End work on grants ------------------
+
+
+	// Start work on contract ------------------
+	$tmp_array = array();
+  $cache_id = "faeprofile:contract:$uri:". md5($uri);
+  $data = uom_fae_api_profile_custom_cache_get($cache_id);	
+
+	if(!empty($data)) {
+		$vars['contract']['year'] = $data['contract']['year'];
+  }	
+	else {
+		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
+		if($uom_fae_api_is_url_reachable) {
+			$contracts = $vars['contract'];
+			if(!empty($contracts)) {
+        foreach ($contracts as $item) {
+          $startstamp = strtotime($item['dateStart']);
+          $endstamp = strtotime($item['dateEnd']);
+
+          $tmp_array['contract'][] = array(
+            'grant' => $item['grantLabel'],
+            'link' => $item['grant'],
+            'role' => $item['roleLabel'],
+            'award_by' => $item['orgLabelAward'],
+            'admin_by' => $item['orgLabelAdmin'],
+            'organisation' => $item['orgLabel'],
+            'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
+            'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
+          );
+        }
+      }
+      else {
+        $tmp_array['contract'] = array();
+      }
+
+      // Do some grouping of research contracts.
+      $vars['contract']['year'] = array();
+      foreach($tmp_array['contract'] as $item) {
+        $vars['contract']['year'][$item['start']][] = theme('faeprofile_research_contract_list', array('grant' => $item));
+      }
+
+      krsort($vars['contract']['year']);
+
+			// Cache
+      $data = $vars['contract'];
+      uom_fae_api_profile_custom_cache_set($cache_id, $data);
+      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+		}
+		else {
+			// Joseki is down, so get the backup data
+      $vars['contract'] = uom_fae_api_custom_cache_get($cache_id);
+		}
+	}
+	// End work on contract --------------------
+
+	// Clean
+  unset($tmp_array);
 }
 
 
@@ -1098,6 +1226,7 @@ function template_preprocess_faeprofile_awards(&$vars) {
 				$data = $vars['awards'];
 				//uom_fae_api_cache_and_backup($cache_id, $data);	
 				uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
 			}
 			else {
 				// Clear cache only
@@ -1143,6 +1272,7 @@ function template_preprocess_faeprofile_linkages(&$vars) {
 				$data = $vars['linkages'];
 				//uom_fae_api_cache_and_backup($cache_id, $data);
 				uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
 			}
 			else {
 				// Clear cache only
@@ -1189,6 +1319,7 @@ function template_preprocess_faeprofile_supervision(&$vars) {
 				$data = $vars;
 				//uom_fae_api_cache_and_backup($cache_id, $data);
 				uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
   		}
   		else {
   			// Clear cache only
@@ -1260,6 +1391,7 @@ function template_preprocess_faeprofile_contact(&$vars) {
 				$data = $vars;
 				//uom_fae_api_cache_and_backup($cache_id, $data);
 				uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
   		}
   		else {
   			// Clear cache only
@@ -1329,6 +1461,7 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
 				$data = $vars['qualifications'];
 				//uom_fae_api_cache_and_backup($cache_id, $data);
 				uom_fae_api_profile_custom_cache_set($cache_id, $data);
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
 			}
 			else {
 				// Clear cache only
