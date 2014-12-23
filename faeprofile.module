@@ -971,8 +971,8 @@ function template_preprocess_faeprofile_research(&$vars) {
   $data = uom_fae_api_profile_custom_cache_get($cache_id);
 
 	if(!empty($data)) { 
-    $vars['grant']['year'] = $data['grant']['year'];
-    $vars['grant']['extra_grant_text'] = $data['grant']['extra_grant_text'];
+    $vars['grant']['year'] = $data['year'];
+    $vars['grant']['extra_grant_text'] = $data['extra_grant_text'];
   }	
 	else {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
@@ -1032,7 +1032,7 @@ function template_preprocess_faeprofile_research(&$vars) {
   $data = uom_fae_api_profile_custom_cache_get($cache_id);	
 
 	if(!empty($data)) {
-		$vars['contract']['year'] = $data['contract']['year'];
+		$vars['contract']['year'] = $data['year'];
   }	
 	else {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
