@@ -4,9 +4,9 @@
  */
 ?>
 
-<h3 class="title">Supervision</h3>
-
 <?php if ($available): ?>
+	<h3 class="title">Supervision</h3>
+
   <?php print $available; ?> for supervision.
 <?php endif; ?>
 

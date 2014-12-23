@@ -889,7 +889,12 @@ function template_preprocess_faeprofile_publications(&$vars) {
     if($uom_fae_api_is_url_reachable) {
       $pubs = $vars['data'];
 
-			if(!empty($pubs)) {
+			// Hack with !empty(pubs['the_author_label'])
+			if(
+					!empty($pubs) &&
+					( isset($pubs[0]['the_author_label']) && !empty($pubs[0]['the_author_label']) )
+
+			) {
         foreach ($pubs as $pub) {
 					// Prepare
 					$datestamp = strtotime($pub['the_date_value']);
@@ -952,105 +957,6 @@ function template_preprocess_faeprofile_publications(&$vars) {
 
 }
 
-
-/**
- * Preprocess functions for faeprofile research.
- */
-/* 
-function template_preprocess_faeprofile_research(&$vars) {
-	$data = '';
-	$uri = $vars['uri'];
-	$tmp_array = array();
-	
-	$cache_id = "faeprofile:research:$uri:". md5($uri);
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
-	if(!empty($data)) {
-		$vars['grant']['year'] = $data['grant']['year'];
-    $vars['grant']['extra_grant_text'] = $data['grant']['extra_grant_text'];
-    $vars['contract']['year'] = $data['contract']['year'];
-	}
-	
-	if(empty($data)) {
-		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
-    if($uom_fae_api_is_url_reachable) {
-  	
-    	// Start work on grants ---------------
-			$grants = $vars['grant'];
-			if(!empty($grants)) {
-				foreach ($grants as $item) {
-					$startstamp = strtotime($item['dateStart']);
-					$endstamp = strtotime($item['dateEnd']);
-
-					$tmp_array['grant'][] = array(
-						'grant' => $item['grantLabel'],
-						'link' => $item['grant'],
-						'scheme' => $item['grantScheme'],
-						'role' => $item['roleLabel'],
-						'organisation' => $item['orgLabel'],
-						'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
-						'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
-					);
-				}
-			}
-			else {
-				$tmp_array['grant'] = array();
-			}		
-	
-			// Do some grouping of research grants.
-			$vars['grant']['year'] = array();
-			foreach($tmp_array['grant'] as $item) {
-	  		$vars['grant']['year'][$item['start']][] = theme('faeprofile_grant', array('grant' => $item));
-			}
-
-			krsort($vars['grant']['year']);
-			
-			// Extra grant
-			$vars['grant']['extra_grant_text'] = array();
-			$extra_grant_text = _faeprofile_extra_grant($uri);
-			if(!empty($extra_grant_text)) {
-				$vars['grant']['extra_grant_text'] = $extra_grant_text;
-			}
-			// End work on grants ----------------------
-			
-			// Start work on contract ------------------
-			$contracts = $vars['contract'];	
-			if(!empty($contracts)) {
-				foreach ($contracts as $item) {
-					$startstamp = strtotime($item['dateStart']);
-					$endstamp = strtotime($item['dateEnd']);
-
-					$tmp_array['contract'][] = array(
-						'grant' => $item['grantLabel'],
-						'link' => $item['grant'],
-						'role' => $item['roleLabel'],
-						'award_by' => $item['orgLabelAward'],
-						'admin_by' => $item['orgLabelAdmin'],
-						'organisation' => $item['orgLabel'],
-						'start' => (!empty($startstamp)) ? date('Y', $startstamp) : '',
-						'end' => (!empty($endstamp)) ? date('Y', $endstamp) : '',
-					);
-				}
-			}
-			else {
-				$tmp_array['contract'] = array();
-			}
-			
-			// Do some grouping of research contracts.
-			$vars['contract']['year'] = array();
-			foreach($tmp_array['contract'] as $item) {
-	  		$vars['contract']['year'][$item['start']][] = theme('faeprofile_research_contract_list', array('grant' => $item));
-			}
-
-			krsort($vars['contract']['year']);
-			// End work on contract --------------------
-			
-			// Clean
-			unset($tmp_array);
-		}
-	
-	}
-}
-*/
 
 /**
  * Preprocess functions for faeprofile research.
