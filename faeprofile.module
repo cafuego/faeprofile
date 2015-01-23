@@ -1704,6 +1704,9 @@ function faeprofile_supervisor_batch_process(&$context) {
     ->range(0, $limit)
     ->execute();
 
+	// NOTE: clean the find an expert cache, before this presave, because uom_fae_api_person_supervision always return cache data.
+  db_delete('fae_profile_custom_cache')->execute();
+
   foreach ($result as $row) {
     $account = user_load($row->uid, TRUE);
     _faeprofile_update_supervisor_status($account);
