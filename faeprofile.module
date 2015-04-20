@@ -771,37 +771,33 @@ function template_preprocess_faeprofile_overview(&$vars) {
   
   $cache_id = "faeprofile:overview:$uri:". md5($uri);
 
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	// Force to use fae_profile_custom_cache_clean
+
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
   if(!empty($data)) {
   	$vars['overview'] = $data;
   }
 
   if(empty($data)) {
-  	//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
 			$overview = $vars['data'];
 			
 			if(empty($overview) || $overview == 'Empty') {
 				// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
+				uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
 			}
 			else {
-				//$vars['overview'] = $overview['overviewText1']. $overview['overviewText2']. $overview['overviewText3']. $overview['overviewText4'];
 				$vars['overview'] = $overview['overviewText1']. $overview['overviewText2'];			
 
-				// Here, we cache the data, as well as update the data in backup table in database 
 				$data = $vars['overview'];
-				// NOTE: we don't update it, because it may pollute the data
-				// So we maunally make a copy of clean data
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 			}
   	}
   	else {
-  		// Joseki is down, so get the backup data
-			$vars['overview'] = uom_fae_api_custom_cache_get($cache_id);
+  		// Joseki is down, use the sync cache data 
+			$vars['overview'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
   	}
   }
   else {
@@ -811,25 +807,24 @@ function template_preprocess_faeprofile_overview(&$vars) {
 
 
 function template_preprocess_faeprofile_affiliations(&$vars) {
-	
 	$data = '';
   $uri = $vars['uri'];
   $vars['affiliations'] = array();
   
   $cache_id = "faeprofile:affiliation:$uri:". md5($uri);
 
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+	// Force to use fae_profile_custom_cache_clean
+
+
+
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
   if(!empty($data)) {
     $vars['affiliations'] = $data;
   }
 
 	if(empty($data)) {
-		//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
-      // We already run sparql and data is within $vars
-      // We don't run sparql here within this if statement, 
-      // so uom_fae_api_is_url_reachable is not necessary, but just put it here.
       $affiliations = $vars['data'];
       
       if(!empty($affiliations)) {
@@ -849,17 +844,17 @@ function template_preprocess_faeprofile_affiliations(&$vars) {
       
         // Cache the data
         $data = $vars['affiliations'];
-        uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+        uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
       }
       else {
         // Clear cache only
-        uom_fae_api_profile_custom_cache_set($cache_id, '');
+        uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
       }
     }
     else {
       // Joseki is down, so get the backup data
-      $vars['affiliations'] = uom_fae_api_custom_cache_get($cache_id);
+      $vars['affiliations'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
     }
 	}
 	else {
@@ -877,14 +872,16 @@ function template_preprocess_faeprofile_publications(&$vars) {
   $vars['year'] = array();
 
 	$cache_id = "faeprofile:pub:$uri:". md5($uri);
+
+	// Force to use fae_profile_custom_cache_clean
+
 	
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 	if(!empty($data)) {
 		$vars['year'] = $data;
 	}
 
 	if(empty($data)) {
-		//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
       $pubs = $vars['data'];
@@ -941,17 +938,17 @@ function template_preprocess_faeprofile_publications(&$vars) {
 			
 				// Cache
         $data = $vars['year'];
-        uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+        uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 			} // End if
 			else {
 				// Clear cache only
-        uom_fae_api_profile_custom_cache_set($cache_id, '');
+        uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
 			}
 		}
 		else {
       // Joseki is down, so get the backup data
-      $vars['year'] = uom_fae_api_custom_cache_get($cache_id);
+      $vars['year'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
     }
 	}
 
@@ -964,11 +961,15 @@ function template_preprocess_faeprofile_publications(&$vars) {
 function template_preprocess_faeprofile_research(&$vars) {
 	$data = '';
   $uri = $vars['uri'];
+
+	// Force to use fae_profile_custom_cache_clean
+
+
 	
 	// Start work on grants ---------------
 	$tmp_array = array();
 	$cache_id = "faeprofile:research:$uri:". md5($uri);
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 
 	if(!empty($data)) { 
     $vars['grant']['year'] = $data['year'];
@@ -1015,12 +1016,12 @@ function template_preprocess_faeprofile_research(&$vars) {
 
 			// Cache
       $data = $vars['grant'];
-      uom_fae_api_profile_custom_cache_set($cache_id, $data);
-      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 		}
 		else {
 			// Joseki is down, so get the backup data
-      $vars['grant'] = uom_fae_api_custom_cache_get($cache_id);
+      $vars['grant'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
 		}
 	}
 	// End work on grants ------------------
@@ -1029,7 +1030,7 @@ function template_preprocess_faeprofile_research(&$vars) {
 	// Start work on contract ------------------
 	$tmp_array = array();
   $cache_id = "faeprofile:contract:$uri:". md5($uri);
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);	
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');	
 
 	if(!empty($data)) {
 		$vars['contract']['year'] = $data['year'];
@@ -1069,12 +1070,12 @@ function template_preprocess_faeprofile_research(&$vars) {
 
 			// Cache
       $data = $vars['contract'];
-      uom_fae_api_profile_custom_cache_set($cache_id, $data);
-      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+      uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 		}
 		else {
 			// Joseki is down, so get the backup data
-      $vars['contract'] = uom_fae_api_custom_cache_get($cache_id);
+      $vars['contract'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
 		}
 	}
 	// End work on contract --------------------
@@ -1093,14 +1094,16 @@ function template_preprocess_faeprofile_awards(&$vars) {
 	$vars['awards'] = array();
 	
 	$cache_id = "faeprofile:award:$uri:". md5($uri);
+
+	// Force to use fae_profile_custom_cache_clean
+
 	
-	$data = uom_fae_api_profile_custom_cache_get($cache_id);
+	$data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 	if(!empty($data)) {
 		$vars['awards'] = $data;
 	}
 	
 	if(empty($data)) {
-		//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
 			$awards = $vars['data'];
@@ -1130,18 +1133,17 @@ function template_preprocess_faeprofile_awards(&$vars) {
 				
 				// Cache and backup
 				$data = $vars['awards'];
-				//uom_fae_api_cache_and_backup($cache_id, $data);	
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 			}
 			else {
 				// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
+				uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
 			}
 		}
 		else {
 			// Joseki is down, so get the backup data
-			$vars['awards'] = uom_fae_api_custom_cache_get($cache_id);
+			$vars['awards'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
 		}
 	}
 	else {
@@ -1158,14 +1160,15 @@ function template_preprocess_faeprofile_linkages(&$vars) {
   $vars['linkages'] = array();
   
   $cache_id = "faeprofile:linkages:$uri:". md5($uri);
-  
-	$data = uom_fae_api_profile_custom_cache_get($cache_id);
+ 
+	// Force to use fae_profile_custom_cache_clean
+ 
+	$data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 	if(!empty($data)) {
 		$vars['linkages'] = $data;
 	}
   
   if(empty($data)) {
-  	//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
 			$linkages = $vars['data'];
@@ -1176,18 +1179,17 @@ function template_preprocess_faeprofile_linkages(&$vars) {
 				
 				// Cache and backup
 				$data = $vars['linkages'];
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 			}
 			else {
 				// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
+				uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
 			}
 		}
 		else {
 			// Joseki is down, so get the backup data
-			$vars['linkages'] = uom_fae_api_custom_cache_get($cache_id);
+			$vars['linkages'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
 		}	
   }
   else {
@@ -1205,15 +1207,17 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   $vars['supervision'] = array();
   
   $cache_id = "faeprofile:supervision:$uri:". md5($uri);
-  
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+ 
+	// Force to use fae_profile_custom_cache
+
+ 
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 	if(!empty($data)) {
 		$vars['available'] = $data['available'];
     $vars['supervision'] = $data['supervision'];
 	}
   
   if(empty($data)) {
-  	//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
   		$supervision = $vars['data'];
@@ -1223,18 +1227,17 @@ function template_preprocess_faeprofile_supervision(&$vars) {
   			
   			// Cache and backup
 				$data = $vars;
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
   		}
   		else {
   			// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
+				uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
   		}
   	}
   	else {
   		// Joseki is down, so get the backup data
-  		$tmp_vars = uom_fae_api_custom_cache_get($cache_id);
+  		$tmp_vars = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
   		$vars['available'] = $tmp_vars['available'];
   		$vars['supervision'] = $tmp_vars['supervision'];
   	}
@@ -1253,8 +1256,11 @@ function template_preprocess_faeprofile_contact(&$vars) {
   $uri = $vars['uri'];
  
   $cache_id = "faeprofile:contact:$uri:". md5($uri);
-  
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+ 
+	// Force to use fae_profile_custom_cache_clean
+ 
+
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 	if(!empty($data)) {
 		$vars['email'] = $data['email'];
     $vars['phone'] = $data['phone'];
@@ -1268,7 +1274,6 @@ function template_preprocess_faeprofile_contact(&$vars) {
   }
   
   if(empty($data)) {
-  	//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
   		$contact = $vars['data'];
@@ -1288,25 +1293,23 @@ function template_preprocess_faeprofile_contact(&$vars) {
 				$vars['building'] = $contact['building'];
 				$vars['supervisor'] = theme('faeprofile_supervisor', array('available'=> $contact['supervisor']));
 
-				//$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail']));
 				$vars['image'] = theme('faeprofile_thumbnail', array('thumbnail' => $contact['thumbnail'], 'actualFilePart' => $contact['actualFilePart']));  			
 
 				$vars['faeprofile_id'] = _get_fae_id_by_uri($uri);
 
   			// Cache and backup
 				$data = $vars;
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
   		}
   		else {
   			// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
+				uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
   		}
   	}
   	else {
   		// Joseki is down, so get the backup data
-  		$tmp_vars = uom_fae_api_custom_cache_get($cache_id);
+  		$tmp_vars = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
   		
   		$vars['email'] = $tmp_vars['email'];
 		  $vars['phone'] = $tmp_vars['phone'];
@@ -1335,14 +1338,15 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
   $vars['qualifications'] = array();
   
   $cache_id = "faeprofile:qualification:$uri:". md5($uri);
-  
-  $data = uom_fae_api_profile_custom_cache_get($cache_id);
+ 
+	// Force ...
+ 
+  $data = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache');
 	if(!empty($data)) {
     $vars['qualifications'] = $data;
 	}
   
   if(empty($data)) {
-  	//if(uom_fae_api_is_url_reachable()) {
 		$uom_fae_api_is_url_reachable = variable_get('uom_fae_api_is_url_reachable', FALSE);
     if($uom_fae_api_is_url_reachable) {
 			$qualifications = $vars['data'];
@@ -1365,18 +1369,17 @@ function template_preprocess_faeprofile_qualifications(&$vars) {
 				
 				// Cache and backup
 				$data = $vars['qualifications'];
-				//uom_fae_api_cache_and_backup($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data);
-				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_clean_backup');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache');
+				uom_fae_api_profile_custom_cache_set($cache_id, $data, 'fae_profile_custom_cache_sync');
 			}
 			else {
 				// Clear cache only
-				uom_fae_api_profile_custom_cache_set($cache_id, '');
+				uom_fae_api_profile_custom_cache_set($cache_id, '', 'fae_profile_custom_cache');
 			}
 		}
 		else {
 			// Joseki is down, so get the backup data
-			$vars['qualifications'] = uom_fae_api_custom_cache_get($cache_id);
+			$vars['qualifications'] = uom_fae_api_profile_custom_cache_get($cache_id, 'fae_profile_custom_cache_sync');
 		}	
   }
   else {
