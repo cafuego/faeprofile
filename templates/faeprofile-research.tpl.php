@@ -57,5 +57,14 @@
 <?php $extra_text = $grant['extra_grant_text']; ?>
 <?php if(!empty($extra_text)): ?>
   <h3>Additional grant information</h3>
-  <?php echo $extra_text ?>
+
+  <?php
+		// NOTE: hack for now, because html has been cut off in joseki, which destroy the html lay
+		if(request_uri() == '/about/staff/associate-professor-rachel-nordlinger') {
+			// Print nothing
+		}
+		else {
+			echo $extra_text;
+		}
+	?>
 <?php endif; ?>
