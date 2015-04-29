@@ -2296,3 +2296,7 @@ function _get_fae_id_by_uri($uri) {
 
 	return $faeprofile_id;
 }
+
+function _my_watchdog($var) {
+	watchdog('faeprofile', '<pre>'. print_r($var, TRUE). '</pre>');
+}
